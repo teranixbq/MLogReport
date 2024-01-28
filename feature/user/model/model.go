@@ -9,9 +9,3 @@ type Users struct {
 	Total_Score float64
 }
 
-// func (U *Users) BeforeCreate(tx *gorm.DB) (err error) {
-// 	newUuid := uuid.New()
-// 	U.Id = newUuid.String()
-
-// 	return nil
-// }
