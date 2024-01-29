@@ -1,8 +1,9 @@
 package service
 
 import (
-	"mlogreport/feature/user/repository"
+	"errors"
 	"mlogreport/feature/user/dto/request"
+	"mlogreport/feature/user/repository"
 	"mlogreport/utils/helper"
 )
 
@@ -12,6 +13,7 @@ type userService struct {
 
 type UserServiceInterface interface {
 	InsertUser(data request.RequestUser) error
+	Login(data request.RequestLogin) error
 }
 
 func NewUserService(userRepository repository.UserRepositoryInterface) UserServiceInterface {
@@ -30,6 +32,19 @@ func (user *userService) InsertUser(data request.RequestUser) error {
 	err = user.userRepository.InsertUser(data)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (user *userService) Login(data request.RequestLogin) error {
+	dataUser,err := user.userRepository.FindNim(data.Nim)
+	if err != nil {
+		return err
+	}
+
+	if !helper.CompareHash(data.Password, dataUser.Password) {
+		return errors.New("error : password salah")
 	}
 
 	return nil

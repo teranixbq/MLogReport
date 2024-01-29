@@ -15,6 +15,7 @@ func RouteUser(c *gin.RouterGroup, db *gorm.DB) {
 	userHandler := handler.NewUserHandler(userService)
 
 	c.POST("register",userHandler.CreateUser)
+	c.POST("login",userHandler.Login)
 
 	prompt := c.Group("user")
 	{

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"mlogreport/feature/user/dto/request"
+	"mlogreport/feature/user/model"
 
 	"gorm.io/gorm"
 )
@@ -12,6 +13,7 @@ type userRepository struct {
 
 type UserRepositoryInterface interface {
 	InsertUser(data request.RequestUser) error
+	FindNim(nim string) (model.Users,error)
 }
 
 func NewUserRepository(db *gorm.DB) UserRepositoryInterface {
@@ -30,3 +32,15 @@ func (user *userRepository) InsertUser(data request.RequestUser) error {
 	
 	return nil
 }
+
+func (user *userRepository) FindNim(nim string) (model.Users,error) {
+	dataUser := model.Users{}
+
+	tx := user.db.Where("nim = ?", nim).First(&dataUser)
+	if tx.Error != nil {
+		return dataUser,tx.Error
+	}
+
+	return dataUser,nil
+}
+

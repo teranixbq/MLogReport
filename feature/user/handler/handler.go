@@ -38,3 +38,25 @@ func (user *userHandler) CreateUser(c *gin.Context) {
 	
 	c.JSON(201, helper.SuccessResponse("success insert data"))
 }
+
+func (user *userHandler) Login(c *gin.Context) {
+	input := request.RequestLogin{}
+	err := c.Bind(&input)
+	if err != nil {
+		c.JSON(400, helper.ErrorResponse(err.Error()))
+		return
+	}
+
+	err = user.userService.Login(input)
+	if err != nil {
+		if strings.Contains(err.Error(), "error") {
+			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
+			return
+		}
+
+		c.AbortWithStatusJSON(500, helper.ErrorResponse(err.Error()))
+		return
+	}
+	
+	c.JSON(200, helper.SuccessResponse("success login"))
+}

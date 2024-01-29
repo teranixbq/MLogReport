@@ -8,3 +8,8 @@ type RequestUser struct {
 	Program     string  `json:"program"`
 	Total_Score float64 `json:"total_score"`
 }
+
+type RequestLogin struct {
+	Nim      string `json:"nim"`
+	Password string `json:"password"`
+}
