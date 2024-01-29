@@ -3,6 +3,7 @@ package handler
 import (
 	"mlogreport/feature/user/dto/request"
 	"mlogreport/feature/user/service"
+	"mlogreport/utils/auth"
 	"mlogreport/utils/helper"
 	"strings"
 
@@ -19,6 +20,18 @@ func NewUserHandler(userService service.UserServiceInterface) *userHandler{
 
 func (user *userHandler) CreateUser(c *gin.Context) {
 	input := request.RequestUser{}
+
+	_,_,role,errAuth := auth.ExtractToken(c)
+	if errAuth != nil {
+		c.JSON(400, helper.ErrorResponse(errAuth.Error()))
+		return
+	}
+
+	if role != "admin" {
+		c.JSON(400, helper.ErrorResponse("error : role anda bukan admin"))
+		return
+	}
+
 	err := c.Bind(&input)
 	if err != nil {
 		c.JSON(400, helper.ErrorResponse(err.Error()))
@@ -47,7 +60,7 @@ func (user *userHandler) Login(c *gin.Context) {
 		return
 	}
 
-	err = user.userService.Login(input)
+	result,err := user.userService.Login(input)
 	if err != nil {
 		if strings.Contains(err.Error(), "error") {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
@@ -58,5 +71,5 @@ func (user *userHandler) Login(c *gin.Context) {
 		return
 	}
 	
-	c.JSON(200, helper.SuccessResponse("success login"))
+	c.JSON(200, helper.SuccessWithDataResponse("success login",result))
 }
