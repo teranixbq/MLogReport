@@ -6,12 +6,11 @@ import (
 
 type Admin struct {
 	Nip      string `gorm:"primaryKey"`
-	Role     string `gorm:"enum(admin,advisor) default:'advisor'"`
+	Role     string 
 	Name     string
 	Password string
-	Advisor []user.Users `gorm:"many2many:advisor_college;"`
+	Advisor  []user.Users `gorm:"many2many:advisor_college;"`
 }
-
 
 // func (A *Admin) BeforeCreate(tx *gorm.DB) (err error) {
 // 	newUuid := uuid.New()

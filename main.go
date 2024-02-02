@@ -15,7 +15,7 @@ func main() {
 
 	cfg := config.InitConfig()
 	db := database.InitDBPostgres(cfg)
-	database.AutoMigrate(db)
+	database.DBMigration(db)
 
 	g.Use(cors.Default())
 	route.Run(g, db)

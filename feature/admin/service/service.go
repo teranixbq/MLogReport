@@ -2,8 +2,9 @@ package service
 
 import (
 	"errors"
-	"mlogreport/feature/admin/dto/response"
+	"log"
 	"mlogreport/feature/admin/dto/request"
+	"mlogreport/feature/admin/dto/response"
 	"mlogreport/feature/admin/repository"
 	"mlogreport/utils/auth"
 	"mlogreport/utils/helper"
@@ -39,14 +40,16 @@ func (admin *adminService) Login(data request.AdminLogin) (response.ResponseLogi
 		return response.ResponseLogin{}, err
 	}
 
-	if !helper.CompareHash(data.Password, dataAdmin.Password) {
-		return response.ResponseLogin{}, errors.New("error : password salah")
+	if !helper.CompareHash(dataAdmin.Password, data.Password) {
+		return response.ResponseLogin{}, errors.New("error : password is wrong")
 	}
 
 	token, err := auth.CreateToken(dataAdmin.Nip, dataAdmin.Role)
 	if err != nil {
 		return response.ResponseLogin{}, err
 	}
+
+	log.Println("token",token)
 
 	response := response.ModelToResponseLogin(dataAdmin.Name, dataAdmin.Role, token)
 	return response, nil

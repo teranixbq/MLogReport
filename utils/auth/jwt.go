@@ -20,7 +20,7 @@ func JWTMiddleware() gin.HandlerFunc {
 
 		token, err := ParseToken(tokenString)
 		if err != nil {
-			c.AbortWithStatusJSON(401, gin.H{"error": "Unauthorized"})
+			c.AbortWithStatusJSON(401, err.Error())
 			return
 		}
 
@@ -51,16 +51,20 @@ func CreateToken(id ,role string) (string, error) {
 }
 
 func ParseToken(tokenString string) (*jwt.Token, error) {
-	config := viper.New()
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return []byte(config.GetString("JWT_SECRET")), nil
-	})
+    if len(tokenString) >= 7 && tokenString[0:7] == "Bearer " {
+        tokenString = tokenString[7:]
+    }
 
-	if err != nil {
-		return nil, err
-	}
+    config := viper.New()
+    token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+        return []byte(config.GetString("JWT_SECRET")), nil
+    })
 
-	return token, nil
+    if err != nil {
+        return nil, err
+    }
+
+    return token, nil
 }
 
 func ExtractToken(c *gin.Context) (string, string, error) {
@@ -70,7 +74,7 @@ func ExtractToken(c *gin.Context) (string, string, error) {
 		return "", "", errors.New("invalid token")
 	}
 
-	claims := user.(map[string]interface{})
+	claims := user.(gin.H)
 
 	id, ok := claims["id"].(string)
 	if !ok {

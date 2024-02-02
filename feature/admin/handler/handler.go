@@ -3,6 +3,7 @@ package handler
 import (
 	"mlogreport/feature/admin/dto/request"
 	"mlogreport/feature/admin/service"
+	"mlogreport/utils/auth"
 	"mlogreport/utils/helper"
 	"strings"
 
@@ -21,6 +22,17 @@ func NewAdminHandler(adminService service.AdminServiceInterface) *adminHandler {
 
 func (admin *adminHandler) CreateAdvisor(c *gin.Context) {
 	input := request.CreateAdvisor{}
+
+	_, role, errAuth := auth.ExtractToken(c)
+	if errAuth != nil {
+		c.JSON(400, helper.ErrorResponse(errAuth.Error()))
+		return
+	}
+
+	if role != "admin" {
+		c.JSON(400, helper.ErrorResponse("error : you don't have access"))
+		return
+	}
 
 	err := c.Bind(&input)
 	if err != nil {
