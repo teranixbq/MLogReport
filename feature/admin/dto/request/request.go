@@ -7,6 +7,6 @@ type CreateAdvisor struct {
 }
 
 type AdminLogin struct {
-	Nip      string `json:"nip"`
-	Password string `json:"password"`
+	Nip             string `json:"nip"`
+	Password        string `json:"password"`
 }

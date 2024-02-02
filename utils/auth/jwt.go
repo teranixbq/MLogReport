@@ -2,40 +2,44 @@ package auth
 
 import (
 	"errors"
-	"net/http"
 	"time"
 
-	"github.com/spf13/viper"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/spf13/viper"
 )
 
 func JWTMiddleware() gin.HandlerFunc {
-	config := viper.New()
 	return func(c *gin.Context) {
 		tokenString := c.GetHeader("Authorization")
 
-		if tokenString == "" {	
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		if tokenString == "" {
+			c.AbortWithStatusJSON(401, gin.H{"error": "Unauthorized"})
 			return
 		}
-		
-		token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			return []byte(config.GetString("JWT_SECRET")), nil
+
+		token, err := ParseToken(tokenString)
+		if err != nil {
+			c.AbortWithStatusJSON(401, err.Error())
+			return
+		}
+
+		data := token.Claims.(jwt.MapClaims)
+		c.Set("user", gin.H{
+			"id": data["id"],
+			"role": data["role"],
 		})
 
-		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			c.Set("id", claims["id"].(string))
-			c.Set("role", claims["role"].(string))
-			c.Next()
-		} else {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-			return
-		}
+		c.Next()
+
+		// if tokenString[0:7] != "Bearer " {
+		// 	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		// 	return
+		// }
 	}
 }
 
-func CreateToken(id string, role string) (string, error) {
+func CreateToken(id ,role string) (string, error) {
 	config := viper.New()
 	claims := jwt.MapClaims{}
 	claims["id"] = id
@@ -46,21 +50,31 @@ func CreateToken(id string, role string) (string, error) {
 	return token.SignedString([]byte(config.GetString("JWT_SECRET")))
 }
 
+func ParseToken(tokenString string) (*jwt.Token, error) {
+    if len(tokenString) >= 7 && tokenString[0:7] == "Bearer " {
+        tokenString = tokenString[7:]
+    }
+
+    config := viper.New()
+    token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+        return []byte(config.GetString("JWT_SECRET")), nil
+    })
+
+    if err != nil {
+        return nil, err
+    }
+
+    return token, nil
+}
+
 func ExtractToken(c *gin.Context) (string, string, error) {
-	user, exists := c.Get("user")
-	if !exists {
+
+	user, exist := c.Get("user")
+	if !exist {
 		return "", "", errors.New("invalid token")
 	}
 
-	token, ok := user.(*jwt.Token)
-	if !ok || !token.Valid {
-		return "", "", errors.New("invalid token")
-	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return "", "", errors.New("invalid token")
-	}
+	claims := user.(gin.H)
 
 	id, ok := claims["id"].(string)
 	if !ok {
