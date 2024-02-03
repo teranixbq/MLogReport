@@ -26,9 +26,9 @@ func InitDBPostgres(cfg *config.Config) *gorm.DB {
 	return db
 }
 
+
 func DBMigration(db *gorm.DB) {
 	db.AutoMigrate(&user.Users{})
 	db.AutoMigrate(&admin.Admin{})
-	db.Exec("CREATE TYPE role_admin AS ENUM ('admin', 'advisor')")
-	db.Exec("ALTER TABLE admins ALTER COLUMN role TYPE role_admin USING role::role_admin")
+	
 }
