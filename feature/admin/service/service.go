@@ -6,7 +6,9 @@ import (
 	"mlogreport/feature/admin/dto/response"
 	"mlogreport/feature/admin/repository"
 	"mlogreport/utils/auth"
+	"mlogreport/utils/constanta"
 	"mlogreport/utils/helper"
+	"mlogreport/utils/validation"
 )
 
 type adminService struct {
@@ -25,6 +27,17 @@ func NewAdminService(adminRepository repository.AdminRepositoryInterface) AdminS
 }
 
 func (admin *adminService) CreateAdvisor(data request.CreateAdvisor) error {
+	errLength := validation.CheckLength(data.Password)
+	if errLength != nil {
+		return errLength
+	}
+	
+	role,errRole := validation.CheckEqual(data.Role,constanta.RoleType)
+	if errRole != nil {
+		return errRole
+	}
+
+	data.Role = role
 	err := admin.adminRepository.CreateAdvisor(data)
 	if err != nil {
 		return err
