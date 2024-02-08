@@ -1,9 +1,9 @@
 package repository
 
 import (
+	"errors"
 	"mlogreport/feature/admin/dto/request"
 	"mlogreport/feature/admin/model"
-	"mlogreport/utils/constanta"
 
 	"gorm.io/gorm"
 )
@@ -26,8 +26,12 @@ func NewPromptRepository(db *gorm.DB) AdminRepositoryInterface {
 func (admin *adminRepository) CreateAdvisor(data request.CreateAdvisor) error {
 	input := request.CreateAdvisorToModel(data)
 
-	input.Role = constanta.RoleType[1]
 	tx := admin.db.Create(&input)
+
+	if tx.RowsAffected == 0 {
+		return errors.New("error : nip already exists")
+	}
+
 	if tx.Error != nil {
 		return tx.Error
 	}
