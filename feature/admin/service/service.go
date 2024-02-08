@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"log"
 	"mlogreport/feature/admin/dto/request"
 	"mlogreport/feature/admin/dto/response"
 	"mlogreport/feature/admin/repository"
@@ -48,8 +47,6 @@ func (admin *adminService) Login(data request.AdminLogin) (response.ResponseLogi
 	if err != nil {
 		return response.ResponseLogin{}, err
 	}
-
-	log.Println("token",token)
 
 	response := response.ModelToResponseLogin(dataAdmin.Name, dataAdmin.Role, token)
 	return response, nil
