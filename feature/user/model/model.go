@@ -1,7 +1,7 @@
 package model
 
 type Users struct {
-	Nim         string
+	Nim         string `gorm:"primaryKey"`
 	Name        string
 	Password    string
 	Class       string

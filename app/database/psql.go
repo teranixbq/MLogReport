@@ -26,7 +26,9 @@ func InitDBPostgres(cfg *config.Config) *gorm.DB {
 	return db
 }
 
-func AutoMigrate(db *gorm.DB) {
+
+func DBMigration(db *gorm.DB) {
 	db.AutoMigrate(&user.Users{})
 	db.AutoMigrate(&admin.Admin{})
+	
 }

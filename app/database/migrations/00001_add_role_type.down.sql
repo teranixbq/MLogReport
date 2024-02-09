@@ -1,0 +1,3 @@
+BEGIN;
+DROP TYPE role_type;
+COMMIT;

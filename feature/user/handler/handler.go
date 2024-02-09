@@ -21,7 +21,7 @@ func NewUserHandler(userService service.UserServiceInterface) *userHandler{
 func (user *userHandler) CreateUser(c *gin.Context) {
 	input := request.RequestUser{}
 
-	_,_,role,errAuth := auth.ExtractToken(c)
+	_,role,errAuth := auth.ExtractToken(c)
 	if errAuth != nil {
 		c.JSON(400, helper.ErrorResponse(errAuth.Error()))
 		return

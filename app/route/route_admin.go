@@ -4,6 +4,7 @@ import (
 	"mlogreport/feature/admin/handler"
 	"mlogreport/feature/admin/repository"
 	"mlogreport/feature/admin/service"
+	"mlogreport/utils/auth"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -14,7 +15,9 @@ func RouteAdmin(c *gin.RouterGroup, db *gorm.DB) {
 	adminService := service.NewAdminService(adminRepository)
 	adminHandler := handler.NewAdminHandler(adminService)
 
-	prompt := c.Group("admin")
+	c.POST("/admin/login", adminHandler.Login)
+
+	prompt := c.Group("admin", auth.JWTMiddleware())
 	{
 		prompt.POST("", adminHandler.CreateAdvisor)
 	}
