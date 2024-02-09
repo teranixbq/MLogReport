@@ -8,6 +8,5 @@ func RequestUserToModel(data RequestUser) model.Users {
 		Name : data.Name,
 		Password: data.Password,
 		Class: data.Class,
-		Program: data.Program,
 	}
 }

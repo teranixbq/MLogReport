@@ -1,6 +1,7 @@
 package route
 
 import (
+	"mlogreport/app/middleware"
 	"mlogreport/feature/admin/handler"
 	"mlogreport/feature/admin/repository"
 	"mlogreport/feature/admin/service"
@@ -17,7 +18,7 @@ func RouteAdmin(c *gin.RouterGroup, db *gorm.DB) {
 
 	c.POST("/admin/login", adminHandler.Login)
 
-	prompt := c.Group("admin", auth.JWTMiddleware())
+	prompt := c.Group("admin", auth.JWTMiddleware(), middleware.IsRole("admin"))
 	{
 		prompt.POST("", adminHandler.CreateAdvisor)
 	}

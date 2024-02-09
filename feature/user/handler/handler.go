@@ -3,7 +3,6 @@ package handler
 import (
 	"mlogreport/feature/user/dto/request"
 	"mlogreport/feature/user/service"
-	"mlogreport/utils/auth"
 	"mlogreport/utils/helper"
 	"strings"
 
@@ -14,23 +13,12 @@ type userHandler struct {
 	userService service.UserServiceInterface
 }
 
-func NewUserHandler(userService service.UserServiceInterface) *userHandler{
+func NewUserHandler(userService service.UserServiceInterface) *userHandler {
 	return &userHandler{userService: userService}
 }
 
 func (user *userHandler) CreateUser(c *gin.Context) {
 	input := request.RequestUser{}
-
-	_,role,errAuth := auth.ExtractToken(c)
-	if errAuth != nil {
-		c.JSON(400, helper.ErrorResponse(errAuth.Error()))
-		return
-	}
-
-	if role != "admin" {
-		c.JSON(400, helper.ErrorResponse("error : role anda bukan admin"))
-		return
-	}
 
 	err := c.Bind(&input)
 	if err != nil {
@@ -48,7 +36,7 @@ func (user *userHandler) CreateUser(c *gin.Context) {
 		c.AbortWithStatusJSON(500, helper.ErrorResponse(err.Error()))
 		return
 	}
-	
+
 	c.JSON(201, helper.SuccessResponse("success insert data"))
 }
 
@@ -60,7 +48,7 @@ func (user *userHandler) Login(c *gin.Context) {
 		return
 	}
 
-	result,err := user.userService.Login(input)
+	result, err := user.userService.Login(input)
 	if err != nil {
 		if strings.Contains(err.Error(), "error") {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
@@ -70,6 +58,6 @@ func (user *userHandler) Login(c *gin.Context) {
 		c.AbortWithStatusJSON(500, helper.ErrorResponse(err.Error()))
 		return
 	}
-	
-	c.JSON(200, helper.SuccessWithDataResponse("success login",result))
+
+	c.JSON(200, helper.SuccessWithDataResponse("success login", result))
 }

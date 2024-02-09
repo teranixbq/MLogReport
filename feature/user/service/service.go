@@ -45,7 +45,7 @@ func (user *userService) Login(data request.RequestLogin) (response.ResponseLogi
 		return response.ResponseLogin{}, err
 	}
 
-	if !helper.CompareHash(data.Password, dataUser.Password) {
+	if !helper.CompareHash(dataUser.Password, data.Password) {
 		return response.ResponseLogin{}, errors.New("error : password salah")
 	}
 
