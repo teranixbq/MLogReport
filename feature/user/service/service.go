@@ -3,7 +3,9 @@ package service
 import (
 	"errors"
 	"mlogreport/feature/user/dto/request"
+	"mlogreport/feature/user/dto/response"
 	"mlogreport/feature/user/repository"
+	"mlogreport/utils/auth"
 	"mlogreport/utils/helper"
 )
 
@@ -13,7 +15,7 @@ type userService struct {
 
 type UserServiceInterface interface {
 	InsertUser(data request.RequestUser) error
-	Login(data request.RequestLogin) error
+	Login(data request.RequestLogin) (response.ResponseLogin, error)
 }
 
 func NewUserService(userRepository repository.UserRepositoryInterface) UserServiceInterface {
@@ -23,8 +25,8 @@ func NewUserService(userRepository repository.UserRepositoryInterface) UserServi
 }
 
 func (user *userService) InsertUser(data request.RequestUser) error {
-	password,err := helper.HashPass(data.Password)
-	if err !=nil {
+	password, err := helper.HashPass(data.Password)
+	if err != nil {
 		return err
 	}
 
@@ -37,15 +39,21 @@ func (user *userService) InsertUser(data request.RequestUser) error {
 	return nil
 }
 
-func (user *userService) Login(data request.RequestLogin) error {
-	dataUser,err := user.userRepository.FindNim(data.Nim)
+func (user *userService) Login(data request.RequestLogin) (response.ResponseLogin, error) {
+	dataUser, err := user.userRepository.FindNim(data.Nim)
 	if err != nil {
-		return err
+		return response.ResponseLogin{}, err
 	}
 
-	if !helper.CompareHash(data.Password, dataUser.Password) {
-		return errors.New("error : password salah")
+	if !helper.CompareHash(dataUser.Password, data.Password) {
+		return response.ResponseLogin{}, errors.New("error : password salah")
 	}
 
-	return nil
+	token, err := auth.CreateToken(dataUser.Nim, "")
+	if err != nil {
+		return response.ResponseLogin{}, err
+	}
+
+	response := response.ModelToResponseLogin(dataUser, token)
+	return response, nil
 }

@@ -1,9 +1,11 @@
 package route
 
 import (
+	"mlogreport/app/middleware"
 	"mlogreport/feature/user/handler"
 	"mlogreport/feature/user/repository"
 	"mlogreport/feature/user/service"
+	"mlogreport/utils/auth"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -14,11 +16,15 @@ func RouteUser(c *gin.RouterGroup, db *gorm.DB) {
 	userService := service.NewUserService(userRepository)
 	userHandler := handler.NewUserHandler(userService)
 
-	c.POST("register",userHandler.CreateUser)
 	c.POST("login",userHandler.Login)
 
-	prompt := c.Group("user")
+	admin := c.Group("admin/users",auth.JWTMiddleware(),middleware.IsRole("admin"))
 	{
-		prompt.POST("", userHandler.CreateUser)
+		admin.POST("", userHandler.CreateUser)
 	}
+
+	// user := c.Group("")
+	// {
+		
+	// }
 }
