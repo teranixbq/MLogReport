@@ -75,3 +75,26 @@ func (admin *adminHandler) Login(c *gin.Context) {
 
 	c.JSON(200, helper.SuccessWithDataResponse("success login", response))
 }
+
+func (admin *adminHandler) CreateListColleges(c *gin.Context){
+	input := request.ListCollege{}
+
+	err := c.Bind(&input)
+	if err != nil {
+		c.JSON(400, helper.ErrorResponse(err.Error()))
+		return
+	}
+
+	err = admin.adminService.InsertList(input)
+	if err != nil {
+		if strings.Contains(err.Error(), "error") {
+			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
+			return
+		}
+
+		c.AbortWithStatusJSON(500, helper.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(201, helper.SuccessResponse("success add college"))
+}
