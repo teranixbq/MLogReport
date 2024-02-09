@@ -18,8 +18,9 @@ func RouteAdmin(c *gin.RouterGroup, db *gorm.DB) {
 
 	c.POST("/admin/login", adminHandler.Login)
 
-	prompt := c.Group("admin", auth.JWTMiddleware(), middleware.IsRole("admin"))
+	admin := c.Group("admin", auth.JWTMiddleware(), middleware.IsRole("admin"))
 	{
-		prompt.POST("", adminHandler.CreateAdvisor)
+		admin.POST("", adminHandler.CreateAdvisor)
+		admin.POST("/add",adminHandler.CreateListColleges)
 	}
 }

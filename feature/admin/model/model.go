@@ -10,5 +10,10 @@ type Admin struct {
 	Role     string   `gorm:"type:role_type;"`
 	Name     string
 	Password string
-	Advisor  []user.Users `gorm:"many2many:advisor_college;"`
+	Advisor  []user.Users `gorm:"many2many:AdvisorCollege;"`
+}
+
+type AdvisorCollege struct {
+	AdminsNip string
+	UsersNim string
 }

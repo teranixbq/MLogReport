@@ -18,6 +18,7 @@ type adminService struct {
 type AdminServiceInterface interface {
 	CreateAdvisor(data request.CreateAdvisor) error
 	Login(data request.AdminLogin) (response.ResponseLogin, error)
+	InsertList(data request.ListCollege) error
 }
 
 func NewAdminService(adminRepository repository.AdminRepositoryInterface) AdminServiceInterface {
@@ -31,8 +32,8 @@ func (admin *adminService) CreateAdvisor(data request.CreateAdvisor) error {
 	if errLength != nil {
 		return errLength
 	}
-	
-	role,errRole := validation.CheckEqual(data.Role,constanta.RoleType)
+
+	role, errRole := validation.CheckEqual(data.Role, constanta.RoleType)
 	if errRole != nil {
 		return errRole
 	}
@@ -63,4 +64,13 @@ func (admin *adminService) Login(data request.AdminLogin) (response.ResponseLogi
 
 	response := response.ModelToResponseLogin(dataAdmin.Name, dataAdmin.Role, token)
 	return response, nil
+}
+
+func (admin *adminService) InsertList(data request.ListCollege) error {
+	err := admin.adminRepository.InsertList(data)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

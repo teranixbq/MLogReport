@@ -11,3 +11,8 @@ type AdminLogin struct {
 	Nip      string `json:"nip"`
 	Password string `json:"password"`
 }
+
+type ListCollege struct {
+	Advisor string `json:"advisor"`
+	Colleges []string `json:"colleges"`
+}
