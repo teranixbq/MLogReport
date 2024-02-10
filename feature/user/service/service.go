@@ -13,9 +13,12 @@ type userService struct {
 	userRepository repository.UserRepositoryInterface
 }
 
+
+
 type UserServiceInterface interface {
 	InsertUser(data request.RequestUser) error
 	Login(data request.RequestLogin) (response.ResponseLogin, error)
+	SelectUserById(nim string) (response.ProfileUser, error)
 }
 
 func NewUserService(userRepository repository.UserRepositoryInterface) UserServiceInterface {
@@ -56,4 +59,13 @@ func (user *userService) Login(data request.RequestLogin) (response.ResponseLogi
 
 	response := response.ModelToResponseLogin(dataUser, token)
 	return response, nil
+}
+
+func (user *userService) SelectUserById(nim string) (response.ProfileUser, error) {
+	dataUser,err := user.userRepository.SelectUserById(nim)
+	if err != nil {
+		return response.ProfileUser{},err
+	}
+	return dataUser,nil
+
 }

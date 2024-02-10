@@ -23,8 +23,8 @@ func RouteUser(c *gin.RouterGroup, db *gorm.DB) {
 		admin.POST("", userHandler.CreateUser)
 	}
 
-	// user := c.Group("")
-	// {
-		
-	// }
+	user := c.Group("",auth.JWTMiddleware())
+	{
+		user.GET("profile",userHandler.GetProfile)
+	}
 }
