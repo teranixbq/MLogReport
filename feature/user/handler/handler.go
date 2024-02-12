@@ -3,7 +3,6 @@ package handler
 import (
 	"mlogreport/feature/user/dto/request"
 	"mlogreport/feature/user/service"
-	"mlogreport/utils/auth"
 	"mlogreport/utils/helper"
 	"strings"
 
@@ -64,11 +63,8 @@ func (user *userHandler) Login(c *gin.Context) {
 }
 
 func (user *userHandler) GetProfile(c *gin.Context) {
-	nim, _, errExtract := auth.ExtractToken(c)
-	if errExtract != nil {
-		c.AbortWithStatusJSON(400, helper.ErrorResponse("error : unauthorized"))
-		return
-	}
+	id, _ := c.Get("id")
+	nim, _ := id.(string)
 
 	result, err := user.userService.SelectUserById(nim)
 	if err != nil {
