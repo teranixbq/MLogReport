@@ -7,7 +7,7 @@ import (
 
 func CreateAdvisorToModel(data CreateAdvisor) model.Admin {
 	return model.Admin{
-		Nip:      data.Nip,
+		Id:      data.Id,
 		Name:     data.Name,
 		Password: data.Password,
 		Role:     data.Role,

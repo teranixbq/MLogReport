@@ -49,7 +49,7 @@ func (admin *adminRepository) CreateAdvisor(data request.CreateAdvisor) error {
 func (admin *adminRepository) FindNip(nip string) (model.Admin, error) {
 	dataAdmin := model.Admin{}
 
-	tx := admin.db.Where("nip = ?", nip).First(&dataAdmin)
+	tx := admin.db.Where("id = ?", nip).First(&dataAdmin)
 	if tx.Error != nil {
 		return model.Admin{}, tx.Error
 	}
@@ -60,7 +60,7 @@ func (admin *adminRepository) FindNip(nip string) (model.Admin, error) {
 func (admin *adminRepository) InsertList(data request.ListCollege) error {
 	adminData := model.Admin{}
 
-	tx := admin.db.Preload("Advisor").Where("nip = ?", data.Advisor).First(&adminData)
+	tx := admin.db.Preload("Advisor").Where("id = ?", data.Advisor).First(&adminData)
 	if tx.Error != nil {
 		return tx.Error
 	}
@@ -68,7 +68,7 @@ func (admin *adminRepository) InsertList(data request.ListCollege) error {
 	for _, usersNim := range data.Colleges {
 		dataAdd := user.Users{}
 
-		tx := admin.db.First(&dataAdd, "nim = ?", usersNim)
+		tx := admin.db.First(&dataAdd, "id = ?", usersNim)
 		// tx := admin.db.Exec("INSERT INTO advisor_college (admin_nip, users_nim) VALUES (?, ?)", data.Advisor, usersNim)
 		if tx.Error != nil {
 			return tx.Error
