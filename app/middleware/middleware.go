@@ -9,7 +9,7 @@ import (
 
 func IsRole(role_type string) gin.HandlerFunc{
 	return func(c *gin.Context) {
-		_,role,errExtract := auth.ExtractToken(c)
+		id,role,errExtract := auth.ExtractToken(c)
 		if errExtract != nil {
 			c.AbortWithStatusJSON(400,helper.ErrorResponse(errExtract.Error()))
 			return
@@ -18,6 +18,9 @@ func IsRole(role_type string) gin.HandlerFunc{
 		if role != role_type{
 			c.AbortWithStatusJSON(401,helper.ErrorResponse("error : unauthorize"))
 		}
+
+		c.Set("id",id)
+		c.Next()
 	}
 
 }
