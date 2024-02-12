@@ -11,10 +11,10 @@ func ModelToResponseLogin(data model.Users, token string) ResponseLogin {
 
 func ModelToProfileUser(data model.Users) ProfileUser {
 	return ProfileUser{
-		Nim:         data.Nim,
-		Name:        data.Name,
-		Class:       data.Class,
-		Program:     data.Program,
-		Total_Score: data.Total_Score,
+		Nim:     data.Nim,
+		Name:    data.Name,
+		Class:   data.Class,
+		Mitra:   data.Mitra,
+		Program: data.Program,
 	}
 }
