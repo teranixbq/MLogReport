@@ -11,7 +11,7 @@ func ModelToResponseLogin(data model.Users, token string) ResponseLogin {
 
 func ModelToProfileUser(data model.Users) ProfileUser {
 	return ProfileUser{
-		Nim:     data.Nim,
+		Id:     data.Id,
 		Name:    data.Name,
 		Class:   data.Class,
 		Mitra:   data.Mitra,

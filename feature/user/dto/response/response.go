@@ -6,7 +6,7 @@ type ResponseLogin struct {
 }
 
 type ProfileUser struct {
-	Nim     string `json:"nim"`
+	Id     string `json:"nim"`
 	Name    string `json:"name"`
 	Class   string `json:"class"`
 	Mitra   string `json:"mitra"`
