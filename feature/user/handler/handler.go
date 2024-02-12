@@ -83,3 +83,28 @@ func (user *userHandler) GetProfile(c *gin.Context) {
 
 	c.JSON(200, helper.SuccessWithDataResponse("succes get profile", result))
 }
+
+func (user *userHandler) UpdateProfile(c *gin.Context) {
+	id, _ := c.Get("id")
+	nim, _ := id.(string)
+	input := request.RequestUpdateProfile{}
+
+	err := c.Bind(&input)
+	if err != nil {
+
+		c.JSON(400, helper.ErrorResponse(err.Error()))
+	}
+
+	err = user.userService.UpdateProfile(nim, input)
+	if err != nil {
+		if strings.Contains(err.Error(), "error") {
+			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
+			return
+		}
+
+		c.AbortWithStatusJSON(500, helper.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(200, helper.SuccessResponse("succes update profile"))
+}

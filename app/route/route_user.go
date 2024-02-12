@@ -26,5 +26,6 @@ func RouteUser(c *gin.RouterGroup, db *gorm.DB) {
 	user := c.Group("",auth.JWTMiddleware(),middleware.IsRole(""))
 	{
 		user.GET("profile",userHandler.GetProfile)
+		user.PUT("profile",userHandler.UpdateProfile)
 	}
 }

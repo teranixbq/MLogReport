@@ -19,6 +19,7 @@ type UserServiceInterface interface {
 	InsertUser(data request.RequestUser) error
 	Login(data request.RequestLogin) (response.ResponseLogin, error)
 	SelectUserById(nim string) (response.ProfileUser, error)
+	UpdateProfile(nim string, data request.RequestUpdateProfile) error
 }
 
 func NewUserService(userRepository repository.UserRepositoryInterface) UserServiceInterface {
@@ -62,10 +63,20 @@ func (user *userService) Login(data request.RequestLogin) (response.ResponseLogi
 }
 
 func (user *userService) SelectUserById(nim string) (response.ProfileUser, error) {
-	dataUser,err := user.userRepository.SelectUserById(nim)
+	dataUser, err := user.userRepository.SelectUserById(nim)
 	if err != nil {
-		return response.ProfileUser{},err
+		return response.ProfileUser{}, err
 	}
-	return dataUser,nil
+	return dataUser, nil
 
+}
+
+
+func (user *userService) UpdateProfile(nim string, data request.RequestUpdateProfile) error {
+	err := user.userRepository.UpdateProfile(nim,data)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -14,10 +14,13 @@ type userRepository struct {
 	db *gorm.DB
 }
 
+
+
 type UserRepositoryInterface interface {
 	InsertUser(data request.RequestUser) error
 	FindNim(nim string) (model.Users, error)
 	SelectUserById(nim string) (response.ProfileUser, error)
+	UpdateProfile(nim string,data request.RequestUpdateProfile) error
 }
 
 func NewUserRepository(db *gorm.DB) UserRepositoryInterface {
@@ -62,9 +65,20 @@ func (user *userRepository) SelectUserById(nim string) (response.ProfileUser, er
 
 	tx := user.db.Where("nim = ?", nim).First(&dataUser)
 	if tx.Error != nil {
-		return response.ProfileUser{},tx.Error
+		return response.ProfileUser{}, tx.Error
 	}
 
 	response := response.ModelToProfileUser(dataUser)
-	return response,nil
+	return response, nil
+}
+
+
+func (user *userRepository) UpdateProfile(nim string,data request.RequestUpdateProfile) error {
+	request := request.ModelToUserUpdate(data)
+	tx := user.db.Where("nim = ?",nim).Updates(&request)
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	return nil
 }
