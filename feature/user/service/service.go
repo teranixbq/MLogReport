@@ -53,7 +53,7 @@ func (user *userService) Login(data request.RequestLogin) (response.ResponseLogi
 		return response.ResponseLogin{}, errors.New("error : password salah")
 	}
 
-	token, err := auth.CreateToken(dataUser.Nim, "")
+	token, err := auth.CreateToken(dataUser.Id, "")
 	if err != nil {
 		return response.ResponseLogin{}, err
 	}

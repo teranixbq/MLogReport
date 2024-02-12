@@ -7,7 +7,7 @@ import (
 )
 
 type Users struct {
-	Nim       string `gorm:"primaryKey"`
+	Id       string `gorm:"primaryKey"`
 	Name      string
 	Password  string
 	Class     string

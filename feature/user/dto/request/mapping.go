@@ -4,7 +4,7 @@ import "mlogreport/feature/user/model"
 
 func RequestUserToModel(data RequestUser) model.Users {
 	return model.Users{
-		Nim:      data.Nim,
+		Id:      data.Id,
 		Name:     data.Name,
 		Password: data.Password,
 		Class:    data.Class,

@@ -1,7 +1,7 @@
 package request
 
 type RequestUser struct {
-	Nim      string `json:"nim"`
+	Id      string `json:"nim"`
 	Name     string `json:"name"`
 	Password string `json:"password"`
 	Class    string `json:"class"`
