@@ -48,7 +48,7 @@ func (admin *adminService) CreateAdvisor(data request.CreateAdvisor) error {
 }
 
 func (admin *adminService) Login(data request.AdminLogin) (response.ResponseLogin, error) {
-	dataAdmin, err := admin.adminRepository.FindNip(data.Nip)
+	dataAdmin, err := admin.adminRepository.FindNip(data.Id)
 	if err != nil {
 		return response.ResponseLogin{}, err
 	}
@@ -57,7 +57,7 @@ func (admin *adminService) Login(data request.AdminLogin) (response.ResponseLogi
 		return response.ResponseLogin{}, errors.New("error : password is wrong")
 	}
 
-	token, err := auth.CreateToken(dataAdmin.Nip, dataAdmin.Role)
+	token, err := auth.CreateToken(dataAdmin.Id, dataAdmin.Role)
 	if err != nil {
 		return response.ResponseLogin{}, err
 	}
