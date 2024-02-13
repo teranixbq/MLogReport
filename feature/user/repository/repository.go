@@ -52,7 +52,7 @@ func (user *userRepository) InsertUser(data request.RequestUser) error {
 func (user *userRepository) FindNim(nim string) (model.Users, error) {
 	dataUser := model.Users{}
 
-	tx := user.db.Where("nim = ?", nim).First(&dataUser)
+	tx := user.db.Where("id = ?", nim).First(&dataUser)
 	if tx.Error != nil {
 		return model.Users{}, tx.Error
 	}
@@ -63,7 +63,7 @@ func (user *userRepository) FindNim(nim string) (model.Users, error) {
 func (user *userRepository) SelectUserById(nim string) (response.ProfileUser, error) {
 	dataUser := model.Users{}
 
-	tx := user.db.Where("nim = ?", nim).First(&dataUser)
+	tx := user.db.Where("id = ?", nim).First(&dataUser)
 	if tx.Error != nil {
 		return response.ProfileUser{}, tx.Error
 	}
@@ -75,7 +75,8 @@ func (user *userRepository) SelectUserById(nim string) (response.ProfileUser, er
 
 func (user *userRepository) UpdateProfile(nim string,data request.RequestUpdateProfile) error {
 	request := request.ModelToUserUpdate(data)
-	tx := user.db.Where("nim = ?",nim).Updates(&request)
+	
+	tx := user.db.Where("id = ?",nim).Updates(&request)
 	if tx.Error != nil {
 		return tx.Error
 	}
