@@ -10,4 +10,5 @@ func Run(c *gin.Engine, db *gorm.DB) {
 
 	RouteAdmin(base, db)
 	RouteUser(base,db)
+	RouteWeekly(base,db)
 }
