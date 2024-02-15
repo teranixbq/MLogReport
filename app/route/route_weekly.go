@@ -19,5 +19,7 @@ func RouteWeekly(c *gin.RouterGroup, db *gorm.DB) {
 	user := c.Group("weekly",auth.JWTMiddleware(),middleware.IsRole(""))
 	{
 		user.POST("",weeklyHandler.CreateWeekly)
+		user.GET("",weeklyHandler.GetAllWeekly)
+		user.PATCH("/:id",weeklyHandler.UpdateWeekly)
 	}
 }

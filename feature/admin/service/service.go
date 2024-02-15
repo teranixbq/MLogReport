@@ -6,7 +6,7 @@ import (
 	"mlogreport/feature/admin/dto/response"
 	"mlogreport/feature/admin/repository"
 	"mlogreport/utils/auth"
-	"mlogreport/utils/constanta"
+	"mlogreport/utils/enum"
 	"mlogreport/utils/helper"
 	"mlogreport/utils/validation"
 )
@@ -33,7 +33,7 @@ func (admin *adminService) CreateAdvisor(data request.CreateAdvisor) error {
 		return errLength
 	}
 
-	role, errRole := validation.CheckEqual(data.Role, constanta.RoleType)
+	role, errRole := validation.CheckEqual(data.Role, enum.RoleType)
 	if errRole != nil {
 		return errRole
 	}
