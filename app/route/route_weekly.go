@@ -20,5 +20,6 @@ func RouteWeekly(c *gin.RouterGroup, db *gorm.DB) {
 	{
 		user.POST("",weeklyHandler.CreateWeekly)
 		user.GET("",weeklyHandler.GetAllWeekly)
+		user.PATCH("/:id",weeklyHandler.UpdateWeekly)
 	}
 }

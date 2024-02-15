@@ -6,13 +6,14 @@ func ModelToResponseWeekly(data model.Weekly) ResponseWeekly {
 	return ResponseWeekly{
 		Id:          data.Id,
 		Description: data.Description,
+		Status:      data.Status,
 		CreatedAt:   data.CreatedAt,
 	}
 }
 
-func ListModelToResponseWeekly (data []model.Weekly) []ResponseWeekly{
+func ListModelToResponseWeekly(data []model.Weekly) []ResponseWeekly {
 	listweekly := []ResponseWeekly{}
-	for _,v := range data {
+	for _, v := range data {
 		response := ModelToResponseWeekly(v)
 		listweekly = append(listweekly, response)
 	}
