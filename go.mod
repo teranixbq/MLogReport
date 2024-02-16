@@ -7,6 +7,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.18.2
+	github.com/supabase-community/storage-go v0.7.0
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/gorm v1.25.6
 )

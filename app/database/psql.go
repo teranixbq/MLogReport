@@ -6,6 +6,7 @@ import (
 	user "mlogreport/feature/user/model"
 	admin "mlogreport/feature/admin/model"
 	weekly "mlogreport/feature/weekly/model"
+	report "mlogreport/feature/report/model"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -32,5 +33,6 @@ func DBMigration(db *gorm.DB) {
 	db.AutoMigrate(&user.Users{})
 	db.AutoMigrate(&admin.Admin{})
 	db.AutoMigrate(&weekly.Weekly{})
+	db.AutoMigrate(&report.Report{})
 	
 }
