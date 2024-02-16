@@ -25,63 +25,38 @@ func NewReportRepository(db *gorm.DB, sb storage.StorageInterface) ReportReposit
 	}
 }
 
-// func (report *reportRepository) InsertUpdate(nim string, file *multipart.FileHeader, data request.RequestReport) (response.ResponseReport, error) {
-// 	request := request.RequestReportToModel(nim, data)
-
-// 	url, err := report.sb.Upload(file)
-
-// 	tx := report.db.Create(&request)
-// 	if tx.Error != nil {
-// 		return response.ResponseReport{}, tx.Error
-// 	}
-
-// 	response := response.ModelToResponseReport(request)
-// 	return response,nil
-// }
-
 func (report *reportRepository) InsertUpdate(nim string, fileFinalReport, fileTranscript, fileCertification *multipart.FileHeader) (response.ResponseReport, error) {
-    data := request.RequestReport{}
+	data := request.RequestReport{}
 	request := request.RequestReportToModel(nim, data)
 
-    // Skip jika fileFinalReport nil
-    if fileFinalReport == nil {
-        request.FinalReport = ""
-    } else {
-        urlFinalReport, err := report.sb.Upload(fileFinalReport)
-        if err != nil {
-            return response.ResponseReport{}, err
-        }
-        request.FinalReport = urlFinalReport
-    }
+	var urls []string
 
-    // Skip jika fileTranscript nil
-    if fileTranscript == nil {
-        request.Transcript = ""
-    } else {
-        urlTranscript, err := report.sb.Upload(fileTranscript)
-        if err != nil {
-            return response.ResponseReport{}, err
-        }
-        request.Transcript = urlTranscript
-    }
+	for _, file := range []*multipart.FileHeader{fileFinalReport, fileTranscript, fileCertification} {
+		if file != nil {
+			url, err := report.sb.Upload(file)
+			if err != nil {
+				return response.ResponseReport{}, err
+			}
+			urls = append(urls, url)
+		}
+	}
 
-    // Skip jika fileCertification nil
-    if fileCertification == nil {
-        request.Certification = ""
-    } else {
-        urlCertification, err := report.sb.Upload(fileCertification)
-        if err != nil {
-            return response.ResponseReport{}, err
-        }
-        request.Certification = urlCertification
-    }
+	for i, url := range urls {
+		switch i {
+		case 0:
+			request.FinalReport = url
+		case 1:
+			request.Transcript = url
+		case 2:
+			request.Certification = url
+		}
+	}
 
-    // Simpan model Report ke database
-    tx := report.db.Create(&request)
-    if tx.Error != nil {
-        return response.ResponseReport{}, tx.Error
-    }
+	tx := report.db.Create(&request)
+	if tx.Error != nil {
+		return response.ResponseReport{}, tx.Error
+	}
 
-    response := response.ModelToResponseReport(request)
-    return response, nil
+	response := response.ModelToResponseReport(request)
+	return response, nil
 }

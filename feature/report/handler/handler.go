@@ -22,21 +22,11 @@ func (report *reportHandler) InsertUpdate(c *gin.Context) {
 	data, _ := c.Get("id")
 	nim, _ := data.(string)
 
-	// fileTranscript, err := c.FormFile("transcript")
-	// if err != nil {
-	// 	c.AbortWithStatusJSON(400, helper.ErrorResponse("2"))
-	// 	return
-	// }
-
-	// fileFinalReport, err := c.FormFile("final_report")
-	// if err != nil {
-	// 	c.AbortWithStatusJSON(400, helper.ErrorResponse("1"))
-	// 	return
-	// }
-
+	fileTranscript, _ := c.FormFile("transcript")
+	fileFinalReport, _ := c.FormFile("final_report")
 	fileCertification, _ := c.FormFile("certification")
 
-	result, err := report.reportService.InsertUpdate(nim, nil, nil, fileCertification)
+	result, err := report.reportService.InsertUpdate(nim, fileFinalReport, fileTranscript, fileCertification)
 	if err != nil {
 		if strings.Contains(err.Error(), "error") {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))

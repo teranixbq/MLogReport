@@ -2,7 +2,6 @@ package storage
 
 import (
 	"errors"
-	"log"
 	"mime/multipart"
 	"mlogreport/app/config"
 
@@ -15,7 +14,7 @@ type storageConfig struct {
 }
 
 type StorageInterface interface {
-	Upload(image *multipart.FileHeader)(string,error)
+	Upload(image *multipart.FileHeader) (string, error)
 }
 
 func NewStorage(sb *supabase.Client) StorageInterface {
@@ -30,23 +29,26 @@ func InitStorage(cfg *config.Config) *supabase.Client {
 }
 
 var (
-	path = uuid.NewString()
-	bucket="mlogreport"
+	contentType = "application/pdf"
+	bucket      = "mlogreport"
 )
 
-func (sc *storageConfig) Upload(image *multipart.FileHeader)(string,error) {
+func (sc *storageConfig) Upload(image *multipart.FileHeader) (string, error) {
+	path := uuid.NewString()
 	file, err := image.Open()
-    if err != nil {
-        return "", errors.New("error: " + err.Error())
-    }
-
-    defer file.Close()
-	result, err := sc.sb.UploadFile(bucket,path,file)
 	if err != nil {
-		return "",errors.New(err.Error())
+		return "", err
+	}
+	defer file.Close()
+
+	result, err := sc.sb.UploadFile(bucket, path, file, supabase.FileOptions{
+		ContentType: &contentType,
+	})
+	if err != nil {
+		return "", errors.New(err.Error())
 	}
 
-	log.Println(result)
-	
-	return result.Key,nil
+	url := "https://cimxqffotlogzqvadisz.supabase.co/storage/v1/object/public/"+result.Key
+
+	return url, nil
 }
