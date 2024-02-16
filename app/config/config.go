@@ -8,12 +8,14 @@ import (
 )
 
 type Config struct {
-	DBHOST     string
-	DBPORT     int
-	DBUSER     string
-	DBPASS     string
-	DBNAME     string
-	SERVERPORT string
+	DBHOST      string
+	DBPORT      int
+	DBUSER      string
+	DBPASS      string
+	DBNAME      string
+	SERVERPORT  string
+	STORAGE_URL string
+	API_STORAGE string
 }
 
 func InitConfig() *Config {
@@ -66,6 +68,14 @@ func loadConfig() *Config {
 
 	if val := config.GetString("DBNAME"); val != "" {
 		res.DBNAME = val
+	}
+
+	if val := config.GetString("STORAGE_URL"); val != "" {
+		res.STORAGE_URL = val
+	}
+
+	if val := config.GetString("API_STORAGE"); val != "" {
+		res.API_STORAGE = val
 	}
 
 	return res
