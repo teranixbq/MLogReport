@@ -28,7 +28,7 @@ func (report *reportHandler) InsertUpdate(c *gin.Context) {
 	certification, _ := c.FormFile("certification")
 
 	input := request.MultipartToRequestReport(finalReport, transcript, certification)
-	result, err := report.reportService.InsertUpdate(nim, input)
+	 err := report.reportService.InsertUpdate(nim, input)
 	if err != nil {
 		if strings.Contains(err.Error(), "error") {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
@@ -39,5 +39,5 @@ func (report *reportHandler) InsertUpdate(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, helper.SuccessWithDataResponse("succes input file", result))
+	c.JSON(200, helper.SuccessResponse("succes input"))
 }

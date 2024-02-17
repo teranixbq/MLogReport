@@ -5,6 +5,7 @@ import (
 	"mlogreport/app/storage"
 	"mlogreport/feature/report/dto/request"
 	"mlogreport/feature/report/dto/response"
+	"mlogreport/feature/report/model"
 
 	"gorm.io/gorm"
 )
@@ -15,7 +16,8 @@ type reportRepository struct {
 }
 
 type ReportRepositoryInterface interface {
-	InsertUpdate(nim string, filepdf request.RequestReportFile) (response.ResponseReport, error)
+	InsertUpdate(nim string, filepdf request.RequestReportFile) error
+	FindReport(nim string) (response.ResponseReport, error)
 }
 
 func NewReportRepository(db *gorm.DB, sb storage.StorageInterface) ReportRepositoryInterface {
@@ -25,7 +27,7 @@ func NewReportRepository(db *gorm.DB, sb storage.StorageInterface) ReportReposit
 	}
 }
 
-func (report *reportRepository) InsertUpdate(nim string, filepdf request.RequestReportFile) (response.ResponseReport, error) {
+func (report *reportRepository) InsertUpdate(nim string, filepdf request.RequestReportFile) error {
 	data := request.RequestReport{}
 	request := request.RequestReportToModel(nim, data)
 
@@ -45,7 +47,7 @@ func (report *reportRepository) InsertUpdate(nim string, filepdf request.Request
 		if file != nil {
 			url, err := report.sb.Upload(file)
 			if err != nil {
-				return response.ResponseReport{}, err
+				return err
 			}
 			switch fileNames[i] {
 			case "FR":
@@ -58,11 +60,30 @@ func (report *reportRepository) InsertUpdate(nim string, filepdf request.Request
 		}
 	}
 
-	tx := report.db.Create(&request)
+	dataReport, err := report.FindReport(nim)
+	if err != nil {
+		tx := report.db.Create(&request)
+		if tx.Error != nil {
+			return tx.Error
+		}
+	}
+
+	tx := report.db.Where("id= ?", dataReport.Id).Updates(&request)
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	return nil
+}
+
+func (report *reportRepository) FindReport(nim string) (response.ResponseReport, error) {
+	dataReport := model.Report{}
+
+	tx := report.db.Where("users_id = ? ", nim).Take(&dataReport)
 	if tx.Error != nil {
 		return response.ResponseReport{}, tx.Error
 	}
 
-	response := response.ModelToResponseReport(request)
+	response := response.ModelToResponseReport(dataReport)
 	return response, nil
 }
