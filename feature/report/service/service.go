@@ -11,7 +11,7 @@ type reportService struct {
 }
 
 type ReportServiceInterface interface {
-	InsertUpdate(nim string, fileFinalReport, fileTranscript, fileCertification *multipart.FileHeader) (response.ResponseReport, error)
+	InsertUpdate(nim string, finalReport, transcript, certification *multipart.FileHeader) (response.ResponseReport, error)
 }
 
 func NewReportService(reportRepository repository.ReportRepositoryInterface) ReportServiceInterface {
@@ -20,11 +20,14 @@ func NewReportService(reportRepository repository.ReportRepositoryInterface) Rep
 	}
 }
 
-func (report *reportService) InsertUpdate(nim string, fileFinalReport *multipart.FileHeader, fileTranscript *multipart.FileHeader, fileCertification *multipart.FileHeader) (response.ResponseReport, error) {
+func (report *reportService) InsertUpdate(nim string, finalReport, transcript, certification *multipart.FileHeader) (response.ResponseReport, error) {
+	finalReport.Filename = "FR-"+nim
+	transcript.Filename = "TR-"+nim
+	certification.Filename = "CR-"+nim
 
-	dataReport,err :=report.reportRepository.InsertUpdate(nim,fileFinalReport,fileTranscript,fileCertification) 
+	dataReport, err := report.reportRepository.InsertUpdate(nim, finalReport, transcript, certification)
 	if err != nil {
-		return response.ResponseReport{},nil
+		return response.ResponseReport{}, nil
 	}
 
 	return dataReport, nil

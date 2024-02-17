@@ -4,8 +4,8 @@ import (
 	"errors"
 	"mime/multipart"
 	"mlogreport/app/config"
+	"mlogreport/utils/validation"
 
-	"github.com/google/uuid"
 	supabase "github.com/supabase-community/storage-go"
 )
 
@@ -31,24 +31,25 @@ func InitStorage(cfg *config.Config) *supabase.Client {
 var (
 	contentType = "application/pdf"
 	bucket      = "mlogreport"
+	upsert      = true
+	datepath    = validation.DateAsia()
 )
 
 func (sc *storageConfig) Upload(image *multipart.FileHeader) (string, error) {
-	path := uuid.NewString()
+
 	file, err := image.Open()
 	if err != nil {
 		return "", err
 	}
 	defer file.Close()
 
-	result, err := sc.sb.UploadFile(bucket, path, file, supabase.FileOptions{
+	result, err := sc.sb.UploadFile(bucket, image.Filename+"-"+datepath, file, supabase.FileOptions{
 		ContentType: &contentType,
+		Upsert:      &upsert,
 	})
 	if err != nil {
 		return "", errors.New(err.Error())
 	}
 
-	url := "https://cimxqffotlogzqvadisz.supabase.co/storage/v1/object/public/"+result.Key
-
-	return url, nil
+	return result.Key, nil
 }

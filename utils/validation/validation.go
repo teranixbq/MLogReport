@@ -55,3 +55,14 @@ func TimeUpdate(data time.Time) error {
 
 	return nil
 }
+
+func TimeAsia() *time.Location {
+	timeAsia, _ := time.LoadLocation("Asia/Bangkok")
+	return timeAsia
+}
+
+func DateAsia() string {
+	timesAsia := TimeAsia()
+	timepath := time.Now().In(timesAsia).Format("2006-01-02")
+	return timepath
+}

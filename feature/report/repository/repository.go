@@ -15,7 +15,7 @@ type reportRepository struct {
 }
 
 type ReportRepositoryInterface interface {
-	InsertUpdate(nim string, fileFinalReport, fileTranscript, fileCertification *multipart.FileHeader) (response.ResponseReport, error)
+	InsertUpdate(nim string, finalReport, transcript, certification *multipart.FileHeader) (response.ResponseReport, error)
 }
 
 func NewReportRepository(db *gorm.DB, sb storage.StorageInterface) ReportRepositoryInterface {
@@ -25,32 +25,43 @@ func NewReportRepository(db *gorm.DB, sb storage.StorageInterface) ReportReposit
 	}
 }
 
-func (report *reportRepository) InsertUpdate(nim string, fileFinalReport, fileTranscript, fileCertification *multipart.FileHeader) (response.ResponseReport, error) {
+func (report *reportRepository) InsertUpdate(nim string, finalReport, transcript, certification *multipart.FileHeader) (response.ResponseReport, error) {
 	data := request.RequestReport{}
 	request := request.RequestReportToModel(nim, data)
 
-	var urls []string
+	fileNames := map[int]string{
+		0: "FR",
+		1: "TR",
+		2: "CR",
+	}
 
-	for _, file := range []*multipart.FileHeader{fileFinalReport, fileTranscript, fileCertification} {
+	for i, file := range []*multipart.FileHeader{finalReport, transcript, certification} {
 		if file != nil {
 			url, err := report.sb.Upload(file)
 			if err != nil {
 				return response.ResponseReport{}, err
 			}
-			urls = append(urls, url)
+			switch fileNames[i] {
+			case "FR":
+				request.FinalReport = url
+			case "TR":
+				request.Transcript = url
+			case "CR":
+				request.Certification = url
+			}
 		}
 	}
 
-	for i, url := range urls {
-		switch i {
-		case 0:
-			request.FinalReport = url
-		case 1:
-			request.Transcript = url
-		case 2:
-			request.Certification = url
-		}
-	}
+	// for i, url := range urls {
+	// 	switch i {
+	// 	case 0:
+	// 		request.FinalReport = url
+	// 	case 1:
+	// 		request.Transcript = url
+	// 	case 2:
+	// 		request.Certification = url
+	// 	}
+	// }
 
 	tx := report.db.Create(&request)
 	if tx.Error != nil {
