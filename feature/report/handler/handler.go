@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"mlogreport/feature/report/dto/request"
 	"mlogreport/feature/report/service"
 	"mlogreport/utils/helper"
 	"strings"
@@ -22,11 +23,12 @@ func (report *reportHandler) InsertUpdate(c *gin.Context) {
 	data, _ := c.Get("id")
 	nim, _ := data.(string)
 
-	fileTranscript, _ := c.FormFile("transcript")
-	fileFinalReport, _ := c.FormFile("final_report")
-	fileCertification, _ := c.FormFile("certification")
+	finalReport, _ := c.FormFile("final_report")
+	transcript, _ := c.FormFile("transcript")
+	certification, _ := c.FormFile("certification")
 
-	result, err := report.reportService.InsertUpdate(nim, fileFinalReport, fileTranscript, fileCertification)
+	input := request.MultipartToRequestReport(finalReport, transcript, certification)
+	result, err := report.reportService.InsertUpdate(nim, input)
 	if err != nil {
 		if strings.Contains(err.Error(), "error") {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
