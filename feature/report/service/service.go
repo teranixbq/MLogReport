@@ -1,7 +1,7 @@
 package service
 
 import (
-	"mime/multipart"
+	"mlogreport/feature/report/dto/request"
 	"mlogreport/feature/report/dto/response"
 	"mlogreport/feature/report/repository"
 )
@@ -11,7 +11,7 @@ type reportService struct {
 }
 
 type ReportServiceInterface interface {
-	InsertUpdate(nim string, finalReport, transcript, certification *multipart.FileHeader) (response.ResponseReport, error)
+	InsertUpdate(nim string, filepdf request.RequestReportFile) (response.ResponseReport, error)
 }
 
 func NewReportService(reportRepository repository.ReportRepositoryInterface) ReportServiceInterface {
@@ -20,12 +20,13 @@ func NewReportService(reportRepository repository.ReportRepositoryInterface) Rep
 	}
 }
 
-func (report *reportService) InsertUpdate(nim string, finalReport, transcript, certification *multipart.FileHeader) (response.ResponseReport, error) {
-	finalReport.Filename = "FR-"+nim
-	transcript.Filename = "TR-"+nim
-	certification.Filename = "CR-"+nim
+func (report *reportService) InsertUpdate(nim string, filepdf request.RequestReportFile) (response.ResponseReport, error) {
 
-	dataReport, err := report.reportRepository.InsertUpdate(nim, finalReport, transcript, certification)
+	filepdf.FinalReport.Filename = "FR-" + nim
+	filepdf.Transcript.Filename = "TR-" + nim
+	filepdf.Certification.Filename = "CR-" + nim
+
+	dataReport, err := report.reportRepository.InsertUpdate(nim, filepdf)
 	if err != nil {
 		return response.ResponseReport{}, nil
 	}
