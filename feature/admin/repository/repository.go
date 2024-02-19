@@ -4,7 +4,8 @@ import (
 	"errors"
 	"mlogreport/feature/admin/dto/request"
 	"mlogreport/feature/admin/model"
-	user "mlogreport/feature/user/model"
+
+	//user "mlogreport/feature/user/model"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"
@@ -18,6 +19,7 @@ type AdminRepositoryInterface interface {
 	CreateAdvisor(data request.CreateAdvisor) error
 	FindNip(nip string) (model.Admin, error)
 	InsertList(data request.ListCollege) error
+	DeleteAdvisor(nip string) error
 }
 
 func NewPromptRepository(db *gorm.DB) AdminRepositoryInterface {
@@ -66,22 +68,24 @@ func (admin *adminRepository) InsertList(data request.ListCollege) error {
 	}
 
 	for _, usersNim := range data.Colleges {
-		dataAdd := user.Users{}
 
-		tx := admin.db.First(&dataAdd, "id = ?", usersNim)
-		// tx := admin.db.Exec("INSERT INTO advisor_college (admin_nip, users_nim) VALUES (?, ?)", data.Advisor, usersNim)
+		tx := admin.db.Exec("INSERT INTO advisor_colleges (admin_id, users_id) VALUES (?, ?)", data.Advisor, usersNim)
+
+		if errors.As(tx.Error, &pg) {
+			return errors.New("ERROR : data already exists")
+		}
+
 		if tx.Error != nil {
 			return tx.Error
 		}
-
-		adminData.Advisor = append(adminData.Advisor, dataAdd)
 	}
 
-	tx = admin.db.Create(&adminData)
-	if errors.As(tx.Error, &pg) {
-			return errors.New("ERROR : data already exists")
-		}
-		
+	return nil
+}
+
+func (admin *adminRepository) DeleteAdvisor(nip string) error {
+	dataAdmin := model.Admin{}
+	tx := admin.db.Where("id = ? ", nip).Delete(&dataAdmin)
 	if tx.Error != nil {
 		return tx.Error
 	}

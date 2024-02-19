@@ -19,6 +19,7 @@ type AdminServiceInterface interface {
 	CreateAdvisor(data request.CreateAdvisor) error
 	Login(data request.AdminLogin) (response.ResponseLogin, error)
 	InsertList(data request.ListCollege) error
+	DeleteAdvisor(nip string) error
 }
 
 func NewAdminService(adminRepository repository.AdminRepositoryInterface) AdminServiceInterface {
@@ -38,6 +39,12 @@ func (admin *adminService) CreateAdvisor(data request.CreateAdvisor) error {
 		return errRole
 	}
 
+	password, errHash := helper.HashPass(data.Password)
+	if errHash != nil {
+		return errHash
+	}
+
+	data.Password = password
 	data.Role = role
 	err := admin.adminRepository.CreateAdvisor(data)
 	if err != nil {
@@ -54,7 +61,7 @@ func (admin *adminService) Login(data request.AdminLogin) (response.ResponseLogi
 	}
 
 	if !helper.CompareHash(dataAdmin.Password, data.Password) {
-		return response.ResponseLogin{}, errors.New("error : password is wrong")
+		return response.ResponseLogin{}, errors.New("ERROR : password is wrong")
 	}
 
 	token, err := auth.CreateToken(dataAdmin.Id, dataAdmin.Role)
@@ -68,6 +75,15 @@ func (admin *adminService) Login(data request.AdminLogin) (response.ResponseLogi
 
 func (admin *adminService) InsertList(data request.ListCollege) error {
 	err := admin.adminRepository.InsertList(data)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (admin *adminService) DeleteAdvisor(nip string) error {
+	err := admin.adminRepository.DeleteAdvisor(nip)
 	if err != nil {
 		return err
 	}
