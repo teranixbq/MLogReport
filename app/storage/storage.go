@@ -4,6 +4,7 @@ import (
 	"errors"
 	"mime/multipart"
 	"mlogreport/app/config"
+	"mlogreport/utils/constanta"
 	"mlogreport/utils/validation"
 
 	supabase "github.com/supabase-community/storage-go"
@@ -50,6 +51,6 @@ func (sc *storageConfig) Upload(image *multipart.FileHeader) (string, error) {
 	if err != nil {
 		return "", errors.New(err.Error())
 	}
-
-	return result.Key, nil
+	url := constanta.URL_STORAGE+result.Key
+	return url, nil
 }

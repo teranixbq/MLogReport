@@ -19,7 +19,10 @@ func InitDBPostgres(cfg *config.Config) *gorm.DB {
 	db, err := gorm.Open(postgres.New(postgres.Config{
 		DSN: dsn,
 		PreferSimpleProtocol: true, 
-	}), &gorm.Config{})
+		
+	}), &gorm.Config{
+		PrepareStmt: true,
+	})
 
 	if err != nil {
 		panic(err)
