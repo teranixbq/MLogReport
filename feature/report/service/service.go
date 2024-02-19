@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"mime/multipart"
 	"mlogreport/feature/report/dto/request"
 	"mlogreport/feature/report/dto/response"
@@ -30,10 +31,22 @@ func (report *reportService) InsertUpdate(nim string, filepdf request.RequestRep
 		filepdf.Transcript,
 		filepdf.Certification,
 	}
-
 	errEmpty := validation.CheckAllEmpty(filepdf)
 	if errEmpty != nil {
-		return errEmpty
+		return errors.New("error : all data cannot be empty, there must be at least 1")
+	}
+
+	for _, v := range fileinput {
+		if v != nil {
+			if v.Size > 10*1024*1024 {
+				return errors.New("error : file size cannot be more than 10MB")
+			}
+
+			contentType := v.Header.Get("Content-Type")
+			if contentType != "application/pdf" {
+				return errors.New("error : file type must be pdf")
+			}
+		}
 	}
 
 	for i, file := range fileinput {
