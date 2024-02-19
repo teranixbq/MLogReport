@@ -22,17 +22,6 @@ func NewAdminHandler(adminService service.AdminServiceInterface) *adminHandler {
 func (admin *adminHandler) CreateAdvisor(c *gin.Context) {
 	input := request.CreateAdvisor{}
 
-	// _, role, errAuth := auth.ExtractToken(c)
-	// if errAuth != nil {
-	// 	c.JSON(400, helper.ErrorResponse(errAuth.Error()))
-	// 	return
-	// }
-
-	// if role != "admin" {
-	// 	c.JSON(400, helper.ErrorResponse("error : you don't have access"))
-	// 	return
-	// }
-
 	err := c.Bind(&input)
 	if err != nil {
 		c.JSON(400, helper.ErrorResponse(err.Error()))
@@ -41,7 +30,7 @@ func (admin *adminHandler) CreateAdvisor(c *gin.Context) {
 
 	err = admin.adminService.CreateAdvisor(input)
 	if err != nil {
-		if strings.Contains(err.Error(), "error") {
+		if strings.Contains(err.Error(), "ERROR") {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
 			return
 		}
@@ -64,7 +53,7 @@ func (admin *adminHandler) Login(c *gin.Context) {
 
 	response, err := admin.adminService.Login(input)
 	if err != nil {
-		if strings.Contains(err.Error(), "error") {
+		if strings.Contains(err.Error(), "ERROR") {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
 			return
 		}
@@ -87,7 +76,7 @@ func (admin *adminHandler) CreateListColleges(c *gin.Context){
 
 	err = admin.adminService.InsertList(input)
 	if err != nil {
-		if strings.Contains(err.Error(), "error") {
+		if strings.Contains(err.Error(), "ERROR") {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
 			return
 		}
@@ -97,4 +86,21 @@ func (admin *adminHandler) CreateListColleges(c *gin.Context){
 	}
 
 	c.JSON(201, helper.SuccessResponse("success add college"))
+}
+
+func (admin *adminHandler) DeleteAdvisor(c *gin.Context){
+	nip := c.Param("id")
+
+	err := admin.adminService.DeleteAdvisor(nip)
+	if err != nil {
+		if strings.Contains(err.Error(), "ERROR") {
+			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
+			return
+		}
+
+		c.AbortWithStatusJSON(500, helper.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(200, helper.SuccessResponse("success delete advisor"))
 }
