@@ -23,5 +23,6 @@ func RouteReport(c *gin.RouterGroup, db *gorm.DB, sb *supabase.Client) {
 	user := c.Group("report",auth.JWTMiddleware(),middleware.IsRole(""))
 	{
 		user.POST("",reportHandler.InsertUpdate)
+		user.GET("",reportHandler.GetReport)
 	}
 }

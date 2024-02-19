@@ -2,9 +2,48 @@ package validation
 
 import (
 	"errors"
+	"reflect"
 	"strings"
 	"time"
 )
+
+func CheckEmpty(data ...interface{}) error {
+	for _, d := range data {
+		v := reflect.ValueOf(d)
+		switch v.Kind() {
+		case reflect.Ptr:
+			if v.IsNil() {
+				return errors.New("error : data cannot be empty")
+			}
+		case reflect.String:
+			if d == "" {
+				return errors.New("error : data cannot be empty")
+			}
+		}
+	}
+	return nil
+}
+
+func CheckAllEmpty(data ...interface{}) error {
+	allEmpty := true
+	for _, d := range data {
+		v := reflect.ValueOf(d)
+		switch v.Kind() {
+		case reflect.String:
+			if d != "" {
+				allEmpty = false
+			}
+		case reflect.Struct:
+			if !v.IsZero() {
+				allEmpty = false
+			}
+		}
+	}
+	if allEmpty {
+		return errors.New("error : all data cannot be empty")
+	}
+	return nil
+}
 
 func CheckEqual(data string, validData []string) (string, error) {
 	input := strings.ToLower(data)

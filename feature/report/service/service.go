@@ -3,7 +3,9 @@ package service
 import (
 	"mime/multipart"
 	"mlogreport/feature/report/dto/request"
+	"mlogreport/feature/report/dto/response"
 	"mlogreport/feature/report/repository"
+	"mlogreport/utils/validation"
 )
 
 type reportService struct {
@@ -12,6 +14,7 @@ type reportService struct {
 
 type ReportServiceInterface interface {
 	InsertUpdate(nim string, filepdf request.RequestReportFile) error
+	FindReport(nim string) (response.ResponseReport, error)
 }
 
 func NewReportService(reportRepository repository.ReportRepositoryInterface) ReportServiceInterface {
@@ -26,6 +29,11 @@ func (report *reportService) InsertUpdate(nim string, filepdf request.RequestRep
 		filepdf.FinalReport,
 		filepdf.Transcript,
 		filepdf.Certification,
+	}
+
+	errEmpty := validation.CheckAllEmpty(filepdf)
+	if errEmpty != nil {
+		return errEmpty
 	}
 
 	for i, file := range fileinput {
@@ -47,4 +55,13 @@ func (report *reportService) InsertUpdate(nim string, filepdf request.RequestRep
 	}
 
 	return nil
+}
+
+func (report *reportService) FindReport(nim string) (response.ResponseReport, error) {
+	data, err := report.reportRepository.FindReport(nim)
+	if err != nil {
+		return response.ResponseReport{}, err
+	}
+
+	return data, nil
 }
