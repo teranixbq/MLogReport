@@ -20,6 +20,11 @@ func RouteReport(c *gin.RouterGroup, db *gorm.DB, sb *supabase.Client) {
 	reportService := service.NewReportService(reportRepository)
 	reportHandler := handler.NewReportHandler(reportService)
 
+	admin := c.Group("admin/report",auth.JWTMiddleware(),middleware.IsRole("advisor"))
+	{
+		admin.GET("",reportHandler.GetAllReport)
+	}
+
 	user := c.Group("report",auth.JWTMiddleware(),middleware.IsRole(""))
 	{
 		user.POST("",reportHandler.InsertUpdate)

@@ -16,6 +16,7 @@ type reportService struct {
 type ReportServiceInterface interface {
 	InsertUpdate(nim string, filepdf request.RequestReportFile) error
 	FindReport(nim string) (response.ResponseReport, error)
+	FindAllReport(nip string) ([]response.ResponseReport, error)
 }
 
 func NewReportService(reportRepository repository.ReportRepositoryInterface) ReportServiceInterface {
@@ -77,4 +78,13 @@ func (report *reportService) FindReport(nim string) (response.ResponseReport, er
 	}
 
 	return data, nil
+}
+
+func (report *reportService) FindAllReport(nip string) ([]response.ResponseReport, error) {
+	dataReport,err := report.reportRepository.FindAllReport(nip)
+	if err != nil {
+		return nil,nil
+	}
+
+	return dataReport,nil
 }

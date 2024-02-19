@@ -3,9 +3,11 @@ package repository
 import (
 	"mime/multipart"
 	"mlogreport/app/storage"
+	admin "mlogreport/feature/admin/model"
 	"mlogreport/feature/report/dto/request"
 	"mlogreport/feature/report/dto/response"
 	"mlogreport/feature/report/model"
+	user "mlogreport/feature/user/model"
 
 	"gorm.io/gorm"
 )
@@ -18,6 +20,7 @@ type reportRepository struct {
 type ReportRepositoryInterface interface {
 	InsertUpdate(nim string, filepdf request.RequestReportFile) error
 	FindReport(nim string) (response.ResponseReport, error)
+	FindAllReport(nip string) ([]response.ResponseReport, error)
 }
 
 func NewReportRepository(db *gorm.DB, sb storage.StorageInterface) ReportRepositoryInterface {
@@ -86,4 +89,41 @@ func (report *reportRepository) FindReport(nim string) (response.ResponseReport,
 
 	response := response.ModelToResponseReport(dataReport)
 	return response, nil
+}
+
+func (report *reportRepository) FindAllReport(nip string) ([]response.ResponseReport, error) {
+	dataReport := []response.ResponseReport{}
+	dataAdmin := admin.Admin{}
+	dataUser := []user.Users{}
+
+	var unsubmitted int
+
+	tx := report.db.Where("id = ?", nip).First(&dataAdmin)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	if txUser := report.db.Model(&dataAdmin).Association("Advisor").Find(&dataUser); txUser != nil {
+		return nil, txUser
+	}
+
+	for _, user := range dataUser {
+		var userReport model.Report
+
+		err := report.db.Where("users_id = ?", user.Id).First(&userReport)
+
+		if err.RowsAffected == 0 {
+			unsubmitted++
+			continue
+		}
+		if err.Error != nil {
+			continue
+		}
+
+		result := response.ModelToResponseReportUser(userReport)
+		result.Name = user.Name
+		dataReport = append(dataReport, result)
+	}
+
+	return dataReport, nil
 }
