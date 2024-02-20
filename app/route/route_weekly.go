@@ -16,6 +16,11 @@ func RouteWeekly(c *gin.RouterGroup, db *gorm.DB) {
 	weeklyService := service.NewWeeklyService(weeklyRepository)
 	weeklyHandler := handler.NewWeeklyHandler(weeklyService)
 
+	admin := c.Group("admin/weekly", auth.JWTMiddleware(),middleware.IsRole("advisor"))
+	{
+		admin.GET("/:nim",weeklyHandler.GetAllWeeklyAdvisor)
+	}
+
 	user := c.Group("weekly",auth.JWTMiddleware(),middleware.IsRole(""))
 	{
 		user.POST("",weeklyHandler.CreateWeekly)

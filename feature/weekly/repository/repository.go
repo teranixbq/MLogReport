@@ -18,7 +18,7 @@ type weeklyRepository struct {
 type WeeklyRepositoryInterface interface {
 	Insert(nim string, data request.RequestWeekly) error
 	SelectAll(nim string) ([]response.ResponseWeekly, error)
-	SelectAllWeeklyAdvisor(nip string) ([]response.ResponseWeekly, error) 
+	SelectAllWeeklyAdvisor(nip, nim string) (response.ResponseWeeklyDetail, error)
 	UpdateWeekly(id string, data request.RequestWeekly) error
 	SelectWeekly(id string) (response.ResponseWeekly, error)
 	UpdateStatus(id string, status string) error
@@ -55,35 +55,34 @@ func (weekly *weeklyRepository) SelectAll(nim string) ([]response.ResponseWeekly
 	return response, nil
 }
 
-func (weekly *weeklyRepository) SelectAllWeeklyAdvisor(nip string) ([]response.ResponseWeekly, error) {
+func (weekly *weeklyRepository) SelectAllWeeklyAdvisor(nip, nim string) (response.ResponseWeeklyDetail, error) {
 	dataAdmin := admin.Admin{}
-	dataWeekly := []response.ResponseWeekly{}
-	dataUsers := []user.Users{}
+	dataUser := user.Users{}
 
 	tx := weekly.db.Where("id = ?", nip).First(&dataAdmin)
 	if tx.Error != nil {
-		return nil, tx.Error
+		return response.ResponseWeeklyDetail{}, tx.Error
 	}
 
-	if txUser := weekly.db.Model(&dataAdmin).Association("Advisor").Find(&dataUsers); txUser != nil {
-		return nil, txUser
+	tx = weekly.db.Where("id = ?", nim).First(&dataUser)
+	if tx.Error != nil {
+		return response.ResponseWeeklyDetail{}, tx.Error
 	}
 
-	for _, user := range dataUsers {
-		var userWeekly model.Weekly
-		err := weekly.db.Where("users_id = ?", user.Id).First(&userWeekly)
-
-		if err.Error != nil {
-			continue
-		}
-
-		result := response.ModelToResponseWeeklyAdvisor(userWeekly)
-		result.Name = user.Name
-		dataWeekly = append(dataWeekly, result)
-
+	err := weekly.db.Model(&dataAdmin).Association("Advisor").Find(&dataUser)
+	if err != nil {
+		return response.ResponseWeeklyDetail{}, err
 	}
 
-	return dataWeekly, nil
+	var userWeekly []model.Weekly
+
+	tx = weekly.db.Where("users_id = ?", dataUser.Id).Find(&userWeekly)
+	if tx.Error != nil {
+		return response.ResponseWeeklyDetail{}, tx.Error
+	}
+
+	response := response.ModelToResponseWeeklyDetail(dataUser.Id,dataUser.Name,userWeekly)
+	return response, nil
 }
 
 func (weekly *weeklyRepository) UpdateWeekly(id string, data request.RequestWeekly) error {

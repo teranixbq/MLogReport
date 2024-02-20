@@ -14,18 +14,24 @@ func ModelToResponseWeekly(data model.Weekly) ResponseWeekly {
 func ModelToResponseWeeklyAdvisor(data model.Weekly) ResponseWeekly {
 	return ResponseWeekly{
 		Id:          data.Id,
-		Name:        "",
-		UsersId:     data.UsersId,
 		Description: data.Description,
 		Status:      data.Status,
 		CreatedAt:   data.CreatedAt,
 	}
 }
 
+func ModelToResponseWeeklyDetail(nim, name string, data []model.Weekly) ResponseWeeklyDetail {
+	return ResponseWeeklyDetail{
+		UsersId: nim,
+		Name:    name,
+		Data:    ListModelToResponseWeekly(data),
+	}
+}
+
 func ListModelToResponseWeekly(data []model.Weekly) []ResponseWeekly {
 	listweekly := []ResponseWeekly{}
 	for _, v := range data {
-		response := ModelToResponseWeekly(v)
+		response := ModelToResponseWeeklyAdvisor(v)
 		listweekly = append(listweekly, response)
 	}
 	return listweekly
