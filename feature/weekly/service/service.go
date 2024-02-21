@@ -16,6 +16,7 @@ type weeklyService struct {
 type WeeklyServiceInterface interface {
 	Insert(nim string, data request.RequestWeekly) error
 	SelectAll(nim string) ([]response.ResponseWeekly, error)
+	SelectAllWeeklyAdvisor(nip, nim string) (response.ResponseWeeklyDetail, error)
 	UpdateWeekly(id string, data request.RequestWeekly) error
 }
 
@@ -54,6 +55,15 @@ func (weekly *weeklyService) SelectAll(nim string) ([]response.ResponseWeekly, e
 	dataWeekly, err := weekly.weeklyRepository.SelectAll(nim)
 	if err != nil {
 		return nil, err
+	}
+
+	return dataWeekly, nil
+}
+
+func (weekly *weeklyService) SelectAllWeeklyAdvisor(nip, nim string) (response.ResponseWeeklyDetail, error) {
+	dataWeekly, err := weekly.weeklyRepository.SelectAllWeeklyAdvisor(nip,nim)
+	if err != nil {
+		return response.ResponseWeeklyDetail{}, err
 	}
 
 	return dataWeekly, nil

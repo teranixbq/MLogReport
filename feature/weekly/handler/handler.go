@@ -60,6 +60,24 @@ func (weekly *weeklyhandler) GetAllWeekly(c *gin.Context) {
 	c.JSON(200, helper.SuccessWithDataResponse("succes get all weekly", result))
 }
 
+func (weekly *weeklyhandler) GetAllWeeklyAdvisor(c *gin.Context){
+	id, _ := c.Get("id")
+	nip, _ := id.(string)
+	nim := c.Param("nim")
+
+	result, err := weekly.weeklyService.SelectAllWeeklyAdvisor(nip,nim)
+	if err != nil {
+		if strings.Contains(err.Error(), "error") {
+			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
+			return
+		}
+
+		c.AbortWithStatusJSON(500, helper.ErrorResponse(err.Error()))
+		return
+	}
+	c.JSON(200, helper.SuccessWithDataResponse("succes get all weekly", result))
+}
+
 func (weekly *weeklyhandler) UpdateWeekly(c *gin.Context) {
 	data, _ := c.Get("id")
 	nim, _ := data.(string)
