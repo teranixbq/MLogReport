@@ -19,7 +19,7 @@ type AdminServiceInterface interface {
 	CreateAdvisor(data request.CreateAdvisor) error
 	Login(data request.AdminLogin) (response.ResponseLogin, error)
 	InsertList(data request.ListCollege) error
-	DeleteAdvisor(nip string) error
+	DeleteAdvisor(id string) error
 }
 
 func NewAdminService(adminRepository repository.AdminRepositoryInterface) AdminServiceInterface {
@@ -55,7 +55,7 @@ func (admin *adminService) CreateAdvisor(data request.CreateAdvisor) error {
 }
 
 func (admin *adminService) Login(data request.AdminLogin) (response.ResponseLogin, error) {
-	dataAdmin, err := admin.adminRepository.FindNip(data.Id)
+	dataAdmin, err := admin.adminRepository.FindNip(data.Nip)
 	if err != nil {
 		return response.ResponseLogin{}, err
 	}
@@ -82,8 +82,8 @@ func (admin *adminService) InsertList(data request.ListCollege) error {
 	return nil
 }
 
-func (admin *adminService) DeleteAdvisor(nip string) error {
-	err := admin.adminRepository.DeleteAdvisor(nip)
+func (admin *adminService) DeleteAdvisor(id string) error {
+	err := admin.adminRepository.DeleteAdvisor(id)
 	if err != nil {
 		return err
 	}

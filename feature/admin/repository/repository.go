@@ -17,9 +17,9 @@ type adminRepository struct {
 
 type AdminRepositoryInterface interface {
 	CreateAdvisor(data request.CreateAdvisor) error
-	FindNip(nip string) (model.Admin, error)
+	FindNip(id string) (model.Admin, error)
 	InsertList(data request.ListCollege) error
-	DeleteAdvisor(nip string) error
+	DeleteAdvisor(id string) error
 }
 
 func NewPromptRepository(db *gorm.DB) AdminRepositoryInterface {
@@ -48,10 +48,10 @@ func (admin *adminRepository) CreateAdvisor(data request.CreateAdvisor) error {
 	return nil
 }
 
-func (admin *adminRepository) FindNip(nip string) (model.Admin, error) {
+func (admin *adminRepository) FindNip(id string) (model.Admin, error) {
 	dataAdmin := model.Admin{}
 
-	tx := admin.db.Where("id = ?", nip).First(&dataAdmin)
+	tx := admin.db.Where("id = ?", id).First(&dataAdmin)
 	if tx.Error != nil {
 		return model.Admin{}, tx.Error
 	}
@@ -83,9 +83,9 @@ func (admin *adminRepository) InsertList(data request.ListCollege) error {
 	return nil
 }
 
-func (admin *adminRepository) DeleteAdvisor(nip string) error {
+func (admin *adminRepository) DeleteAdvisor(id string) error {
 	dataAdmin := model.Admin{}
-	tx := admin.db.Where("id = ? ", nip).Delete(&dataAdmin)
+	tx := admin.db.Where("id = ? ", id).Delete(&dataAdmin)
 	if tx.Error != nil {
 		return tx.Error
 	}

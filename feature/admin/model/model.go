@@ -8,6 +8,7 @@ import (
 
 type Admin struct {
 	Id        string `gorm:"primaryKey"`
+	Nip       string
 	Role      string `gorm:"type:role_type;"`
 	Name      string
 	Password  string
@@ -16,6 +17,6 @@ type Admin struct {
 }
 
 type AdvisorCollege struct {
-	AdminsNip string
-	UsersNim  string
+	AdminsId string
+	UsersId  string
 }

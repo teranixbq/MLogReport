@@ -89,9 +89,9 @@ func (admin *adminHandler) CreateListColleges(c *gin.Context){
 }
 
 func (admin *adminHandler) DeleteAdvisor(c *gin.Context){
-	nip := c.Param("id")
+	id := c.Param("id")
 
-	err := admin.adminService.DeleteAdvisor(nip)
+	err := admin.adminService.DeleteAdvisor(id)
 	if err != nil {
 		if strings.Contains(err.Error(), "ERROR") {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
