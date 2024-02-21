@@ -18,8 +18,8 @@ type userService struct {
 type UserServiceInterface interface {
 	InsertUser(data request.RequestUser) error
 	Login(data request.RequestLogin) (response.ResponseLogin, error)
-	SelectUserById(nim string) (response.ProfileUser, error)
-	UpdateProfile(nim string, data request.RequestUpdateProfile) error
+	SelectUserById(id string) (response.ProfileUser, error)
+	UpdateProfile(id string, data request.RequestUpdateProfile) error
 }
 
 func NewUserService(userRepository repository.UserRepositoryInterface) UserServiceInterface {
@@ -62,8 +62,8 @@ func (user *userService) Login(data request.RequestLogin) (response.ResponseLogi
 	return response, nil
 }
 
-func (user *userService) SelectUserById(nim string) (response.ProfileUser, error) {
-	dataUser, err := user.userRepository.SelectUserById(nim)
+func (user *userService) SelectUserById(id string) (response.ProfileUser, error) {
+	dataUser, err := user.userRepository.SelectUserById(id)
 	if err != nil {
 		return response.ProfileUser{}, err
 	}
@@ -72,8 +72,8 @@ func (user *userService) SelectUserById(nim string) (response.ProfileUser, error
 }
 
 
-func (user *userService) UpdateProfile(nim string, data request.RequestUpdateProfile) error {
-	err := user.userRepository.UpdateProfile(nim,data)
+func (user *userService) UpdateProfile(id string, data request.RequestUpdateProfile) error {
+	err := user.userRepository.UpdateProfile(id,data)
 	if err != nil {
 		return err
 	}

@@ -19,8 +19,8 @@ type userRepository struct {
 type UserRepositoryInterface interface {
 	InsertUser(data request.RequestUser) error
 	FindNim(nim string) (model.Users, error)
-	SelectUserById(nim string) (response.ProfileUser, error)
-	UpdateProfile(nim string,data request.RequestUpdateProfile) error
+	SelectUserById(id string) (response.ProfileUser, error)
+	UpdateProfile(id string,data request.RequestUpdateProfile) error
 }
 
 func NewUserRepository(db *gorm.DB) UserRepositoryInterface {
@@ -52,7 +52,7 @@ func (user *userRepository) InsertUser(data request.RequestUser) error {
 func (user *userRepository) FindNim(nim string) (model.Users, error) {
 	dataUser := model.Users{}
 
-	tx := user.db.Where("id = ?", nim).First(&dataUser)
+	tx := user.db.Where("nim = ?", nim).Take(&dataUser)
 	if tx.Error != nil {
 		return model.Users{}, tx.Error
 	}
@@ -60,10 +60,10 @@ func (user *userRepository) FindNim(nim string) (model.Users, error) {
 	return dataUser, nil
 }
 
-func (user *userRepository) SelectUserById(nim string) (response.ProfileUser, error) {
+func (user *userRepository) SelectUserById(id string) (response.ProfileUser, error) {
 	dataUser := model.Users{}
 
-	tx := user.db.Where("id = ?", nim).First(&dataUser)
+	tx := user.db.Where("id = ?", id).First(&dataUser)
 	if tx.Error != nil {
 		return response.ProfileUser{}, tx.Error
 	}
@@ -73,10 +73,10 @@ func (user *userRepository) SelectUserById(nim string) (response.ProfileUser, er
 }
 
 
-func (user *userRepository) UpdateProfile(nim string,data request.RequestUpdateProfile) error {
+func (user *userRepository) UpdateProfile(id string,data request.RequestUpdateProfile) error {
 	request := request.ModelToUserUpdate(data)
 	
-	tx := user.db.Where("id = ?",nim).Updates(&request)
+	tx := user.db.Where("id = ?",id).Updates(&request)
 	if tx.Error != nil {
 		return tx.Error
 	}
