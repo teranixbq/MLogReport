@@ -1,14 +1,14 @@
 package request
 
 type CreateAdvisor struct {
-	Id      string `json:"nip"`
+	Nip      string `json:"nip"`
 	Name     string `json:"name"`
 	Password string `json:"password"`
 	Role     string `json:"role"`
 }
 
 type AdminLogin struct {
-	Id      string `json:"nip"`
+	Nip      string `json:"nip"`
 	Password string `json:"password"`
 }
 
