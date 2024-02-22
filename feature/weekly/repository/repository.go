@@ -55,16 +55,17 @@ func (weekly *weeklyRepository) SelectAll(nim string) ([]response.ResponseWeekly
 	return response, nil
 }
 
-func (weekly *weeklyRepository) SelectAllWeeklyAdvisor(nip, nim string) (response.ResponseWeeklyDetail, error) {
+func (weekly *weeklyRepository) SelectAllWeeklyAdvisor(IdAdmin, IdUser string) (response.ResponseWeeklyDetail, error) {
 	dataAdmin := admin.Admin{}
 	dataUser := user.Users{}
+	var userWeekly []model.Weekly
 
-	tx := weekly.db.Where("id = ?", nip).First(&dataAdmin)
+	tx := weekly.db.Where("id = ?", IdAdmin).First(&dataAdmin)
 	if tx.Error != nil {
 		return response.ResponseWeeklyDetail{}, tx.Error
 	}
 
-	tx = weekly.db.Where("id = ?", nim).First(&dataUser)
+	tx = weekly.db.Where("id = ?", IdUser).First(&dataUser)
 	if tx.Error != nil {
 		return response.ResponseWeeklyDetail{}, tx.Error
 	}
@@ -74,14 +75,12 @@ func (weekly *weeklyRepository) SelectAllWeeklyAdvisor(nip, nim string) (respons
 		return response.ResponseWeeklyDetail{}, err
 	}
 
-	var userWeekly []model.Weekly
-
 	tx = weekly.db.Where("users_id = ?", dataUser.Id).Find(&userWeekly)
 	if tx.Error != nil {
 		return response.ResponseWeeklyDetail{}, tx.Error
 	}
 
-	response := response.ModelToResponseWeeklyDetail(dataUser.Id,dataUser.Name,userWeekly)
+	response := response.ModelToResponseWeeklyDetail(dataUser.Nim,dataUser.Name,userWeekly)
 	return response, nil
 }
 
