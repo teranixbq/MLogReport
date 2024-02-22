@@ -60,12 +60,12 @@ func (weekly *weeklyhandler) GetAllWeekly(c *gin.Context) {
 	c.JSON(200, helper.SuccessWithDataResponse("succes get all weekly", result))
 }
 
-func (weekly *weeklyhandler) GetAllWeeklyAdvisor(c *gin.Context){
+func (weekly *weeklyhandler) GetAllWeeklyAdvisor(c *gin.Context) {
 	id, _ := c.Get("id")
 	nip, _ := id.(string)
 	nim := c.Param("nim")
 
-	result, err := weekly.weeklyService.SelectAllWeeklyAdvisor(nip,nim)
+	result, err := weekly.weeklyService.SelectAllWeeklyAdvisor(nip, nim)
 	if err != nil {
 		if strings.Contains(err.Error(), "error") {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
@@ -103,4 +103,29 @@ func (weekly *weeklyhandler) UpdateWeekly(c *gin.Context) {
 		return
 	}
 	c.JSON(200, helper.SuccessResponse("succes update weekly log"))
+}
+
+func (weekly *weeklyhandler) UpdateStatus(c *gin.Context) {
+	idUser := c.Param("iduser")
+	id := c.Param("id")
+	input := request.RequestStatus{}
+
+	err := c.Bind(&input)
+	if err != nil {
+		if err != nil {
+			c.JSON(400, helper.ErrorResponse(err.Error()))
+		}
+	}
+
+	err = weekly.weeklyService.UpdateStatus(idUser, id, input.Status)
+	if err != nil {
+		if strings.Contains(err.Error(), "error") {
+			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
+			return
+		}
+
+		c.AbortWithStatusJSON(500, helper.ErrorResponse(err.Error()))
+		return
+	}
+	c.JSON(200, helper.SuccessResponse("succes update status"))
 }

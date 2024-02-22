@@ -97,7 +97,7 @@ func (weekly *weeklyRepository) UpdateWeekly(id string, data request.RequestWeek
 func (weekly *weeklyRepository) SelectWeekly(id string) (response.ResponseWeekly, error) {
 	dataWeekly := model.Weekly{}
 
-	tx := weekly.db.Where("id = ? ", id).First(&dataWeekly)
+	tx := weekly.db.Where("id = ?", id).First(&dataWeekly)
 	if tx.Error != nil {
 		return response.ResponseWeekly{}, nil
 	}
@@ -108,7 +108,7 @@ func (weekly *weeklyRepository) SelectWeekly(id string) (response.ResponseWeekly
 
 func (weekly *weeklyRepository) UpdateStatus(id string, status string) error {
 
-	tx := weekly.db.Where("id = ? ", id).Update("status", status)
+	tx := weekly.db.Model(&model.Weekly{}).Where("id = ? ", id).Update("status", status)
 	if tx.Error != nil {
 		return tx.Error
 	}

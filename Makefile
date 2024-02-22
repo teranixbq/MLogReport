@@ -10,3 +10,6 @@ migratedb:
 
 up : migratedb 
 down: migratedb
+
+run:
+	echo "alias run='go run main.go'" | tee -a ~/.bashrc
