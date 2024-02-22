@@ -3,6 +3,7 @@ package handler
 import (
 	"mlogreport/feature/admin/dto/request"
 	"mlogreport/feature/admin/service"
+	"mlogreport/utils/constanta"
 	"mlogreport/utils/helper"
 	"strings"
 
@@ -30,7 +31,7 @@ func (admin *adminHandler) CreateAdvisor(c *gin.Context) {
 
 	err = admin.adminService.CreateAdvisor(input)
 	if err != nil {
-		if strings.Contains(err.Error(), "ERROR") {
+		if strings.Contains(err.Error(), constanta.ERROR) {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
 			return
 		}
@@ -53,8 +54,13 @@ func (admin *adminHandler) Login(c *gin.Context) {
 
 	response, err := admin.adminService.Login(input)
 	if err != nil {
-		if strings.Contains(err.Error(), "ERROR") {
+		if strings.Contains(err.Error(), constanta.ERROR) {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
+			return
+		}
+
+		if strings.Contains(err.Error(), constanta.NOT_FOUND) {
+			c.AbortWithStatusJSON(404, helper.ErrorResponse(err.Error()))
 			return
 		}
 
@@ -65,7 +71,7 @@ func (admin *adminHandler) Login(c *gin.Context) {
 	c.JSON(200, helper.SuccessWithDataResponse("success login", response))
 }
 
-func (admin *adminHandler) CreateListColleges(c *gin.Context){
+func (admin *adminHandler) CreateListColleges(c *gin.Context) {
 	input := request.ListCollege{}
 
 	err := c.Bind(&input)
@@ -76,7 +82,7 @@ func (admin *adminHandler) CreateListColleges(c *gin.Context){
 
 	err = admin.adminService.InsertList(input)
 	if err != nil {
-		if strings.Contains(err.Error(), "ERROR") {
+		if strings.Contains(err.Error(), constanta.ERROR) {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
 			return
 		}
@@ -88,12 +94,12 @@ func (admin *adminHandler) CreateListColleges(c *gin.Context){
 	c.JSON(201, helper.SuccessResponse("success add college"))
 }
 
-func (admin *adminHandler) DeleteAdvisor(c *gin.Context){
+func (admin *adminHandler) DeleteAdvisor(c *gin.Context) {
 	id := c.Param("id")
 
 	err := admin.adminService.DeleteAdvisor(id)
 	if err != nil {
-		if strings.Contains(err.Error(), "ERROR") {
+		if strings.Contains(err.Error(), constanta.ERROR) {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
 			return
 		}

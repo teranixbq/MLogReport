@@ -39,6 +39,11 @@ func (admin *adminService) CreateAdvisor(data request.CreateAdvisor) error {
 		return errRole
 	}
 
+	dataUser, _ := admin.adminRepository.SelectNip(data.Nip)
+	if dataUser.Nip != "" {
+		return errors.New("error : data alreadey exist")
+	}
+
 	password, errHash := helper.HashPass(data.Password)
 	if errHash != nil {
 		return errHash
@@ -55,7 +60,7 @@ func (admin *adminService) CreateAdvisor(data request.CreateAdvisor) error {
 }
 
 func (admin *adminService) Login(data request.AdminLogin) (response.ResponseLogin, error) {
-	dataAdmin, err := admin.adminRepository.FindNip(data.Nip)
+	dataAdmin, err := admin.adminRepository.SelectNip(data.Nip)
 	if err != nil {
 		return response.ResponseLogin{}, err
 	}
