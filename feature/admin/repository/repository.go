@@ -5,7 +5,8 @@ import (
 	"mlogreport/feature/admin/dto/request"
 	"mlogreport/feature/admin/model"
 
-	//user "mlogreport/feature/user/model"
+
+	user "mlogreport/feature/user/model"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"
@@ -48,10 +49,10 @@ func (admin *adminRepository) CreateAdvisor(data request.CreateAdvisor) error {
 	return nil
 }
 
-func (admin *adminRepository) FindNip(id string) (model.Admin, error) {
+func (admin *adminRepository) FindNip(nip string) (model.Admin, error) {
 	dataAdmin := model.Admin{}
 
-	tx := admin.db.Where("id = ?", id).First(&dataAdmin)
+	tx := admin.db.Where("nip = ?", nip).First(&dataAdmin)
 	if tx.Error != nil {
 		return model.Admin{}, tx.Error
 	}
@@ -62,14 +63,20 @@ func (admin *adminRepository) FindNip(id string) (model.Admin, error) {
 func (admin *adminRepository) InsertList(data request.ListCollege) error {
 	adminData := model.Admin{}
 
-	tx := admin.db.Preload("Advisor").Where("id = ?", data.Advisor).First(&adminData)
+	tx := admin.db.Preload("Advisor").Where("nip = ?", data.Advisor).Take(&adminData)
 	if tx.Error != nil {
 		return tx.Error
 	}
 
 	for _, usersNim := range data.Colleges {
+		dataUsers:= user.Users{}
 
-		tx := admin.db.Exec("INSERT INTO advisor_colleges (admin_id, users_id) VALUES (?, ?)", data.Advisor, usersNim)
+		tx := admin.db.Where("nim = ?",usersNim).Take(&dataUsers)
+		if tx.Error != nil {
+			return tx.Error
+		}
+
+		tx = admin.db.Exec("INSERT INTO advisor_colleges (admin_id, users_id) VALUES (?, ?)", adminData.Id, dataUsers.Id)
 
 		if errors.As(tx.Error, &pg) {
 			return errors.New("ERROR : data already exists")
@@ -85,6 +92,7 @@ func (admin *adminRepository) InsertList(data request.ListCollege) error {
 
 func (admin *adminRepository) DeleteAdvisor(id string) error {
 	dataAdmin := model.Admin{}
+	
 	tx := admin.db.Where("id = ? ", id).Delete(&dataAdmin)
 	if tx.Error != nil {
 		return tx.Error

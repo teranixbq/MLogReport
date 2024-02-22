@@ -30,9 +30,9 @@ func NewReportRepository(db *gorm.DB, sb storage.StorageInterface) ReportReposit
 	}
 }
 
-func (report *reportRepository) InsertUpdate(nim string, filepdf request.RequestReportFile) error {
+func (report *reportRepository) InsertUpdate(IdUser string, filepdf request.RequestReportFile) error {
 	data := request.RequestReport{}
-	request := request.RequestReportToModel(nim, data)
+	request := request.RequestReportToModel(IdUser, data)
 
 	fileNames := map[int]string{
 		0: "FR",
@@ -63,7 +63,7 @@ func (report *reportRepository) InsertUpdate(nim string, filepdf request.Request
 		}
 	}
 
-	dataReport, err := report.FindReport(nim)
+	dataReport, err := report.FindReport(IdUser)
 	if err != nil {
 		tx := report.db.Create(&request)
 		if tx.Error != nil {
@@ -79,10 +79,10 @@ func (report *reportRepository) InsertUpdate(nim string, filepdf request.Request
 	return nil
 }
 
-func (report *reportRepository) FindReport(nim string) (response.ResponseReport, error) {
+func (report *reportRepository) FindReport(IdUser string) (response.ResponseReport, error) {
 	dataReport := model.Report{}
 
-	tx := report.db.Where("users_id = ? ", nim).Take(&dataReport)
+	tx := report.db.Where("users_id = ? ", IdUser).Take(&dataReport)
 	if tx.Error != nil {
 		return response.ResponseReport{}, tx.Error
 	}
@@ -91,14 +91,14 @@ func (report *reportRepository) FindReport(nim string) (response.ResponseReport,
 	return response, nil
 }
 
-func (report *reportRepository) FindAllReport(nip string) ([]response.ResponseReport, error) {
+func (report *reportRepository) FindAllReport(IdUser string) ([]response.ResponseReport, error) {
 	dataReport := []response.ResponseReport{}
 	dataAdmin := admin.Admin{}
 	dataUser := []user.Users{}
 
 	var unsubmitted int
 
-	tx := report.db.Where("id = ?", nip).First(&dataAdmin)
+	tx := report.db.Where("id = ?", IdUser).First(&dataAdmin)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
