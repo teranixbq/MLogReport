@@ -5,8 +5,8 @@ import (
 	//user "mlogreport/feature/user/model"
 )
 
-func CreateAdvisorToModel(data CreateAdvisor) model.Admin {
-	return model.Admin{
+func CreateAdvisorToModel(data CreateAdvisor) model.Admins {
+	return model.Admins{
 		Nip:      data.Nip,	
 		Name:     data.Name,
 		Password: data.Password,

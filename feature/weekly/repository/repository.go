@@ -56,7 +56,7 @@ func (weekly *weeklyRepository) SelectAll(nim string) ([]response.ResponseWeekly
 }
 
 func (weekly *weeklyRepository) SelectAllWeeklyAdvisor(IdAdmin, IdUser string) (response.ResponseWeeklyDetail, error) {
-	dataAdmin := admin.Admin{}
+	dataAdmin := admin.Admins{}
 	dataUser := user.Users{}
 	var userWeekly []model.Weekly
 

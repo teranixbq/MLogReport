@@ -15,7 +15,7 @@ type adminRepository struct {
 
 type AdminRepositoryInterface interface {
 	CreateAdvisor(data request.CreateAdvisor) error
-	SelectNip(nip string) (model.Admin, error)
+	SelectNip(nip string) (model.Admins, error)
 	InsertList(data request.ListCollege) error
 	DeleteAdvisor(id string) error
 }
@@ -41,19 +41,19 @@ func (admin *adminRepository) CreateAdvisor(data request.CreateAdvisor) error {
 	return nil
 }
 
-func (admin *adminRepository) SelectNip(nip string) (model.Admin, error) {
-	dataAdmin := model.Admin{}
+func (admin *adminRepository) SelectNip(nip string) (model.Admins, error) {
+	dataAdmin := model.Admins{}
 
 	tx := admin.db.Where("nip = ?", nip).Take(&dataAdmin)
 	if tx.Error != nil {
-		return model.Admin{}, tx.Error
+		return model.Admins{}, tx.Error
 	}
 
 	return dataAdmin, nil
 }
 
 func (admin *adminRepository) InsertList(data request.ListCollege) error {
-	dataAdmin := model.Admin{}
+	dataAdmin := model.Admins{}
 
 	tx := admin.db.Preload("Advisor").Where("nip = ?", data.Advisor).Take(&dataAdmin)
 	if tx.Error != nil {
@@ -83,7 +83,7 @@ func (admin *adminRepository) InsertList(data request.ListCollege) error {
 }
 
 func (admin *adminRepository) DeleteAdvisor(id string) error {
-	dataAdmin := model.Admin{}
+	dataAdmin := model.Admins{}
 	
 	tx := admin.db.Where("id = ? ", id).Delete(&dataAdmin)
 	if tx.Error != nil {

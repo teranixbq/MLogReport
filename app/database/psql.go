@@ -34,7 +34,7 @@ func InitDBPostgres(cfg *config.Config) *gorm.DB {
 
 func DBMigration(db *gorm.DB) {
 	db.AutoMigrate(&user.Users{})
-	db.AutoMigrate(&admin.Admin{})
+	db.AutoMigrate(&admin.Admins{})
 	db.AutoMigrate(&weekly.Weekly{})
 	db.AutoMigrate(&report.Report{})
 	
