@@ -6,6 +6,7 @@ import (
 	"mlogreport/feature/admin/model"
 	user "mlogreport/feature/user/model"
 	"github.com/jackc/pgx/v5/pgconn"
+
 	"gorm.io/gorm"
 )
 
@@ -53,38 +54,44 @@ func (admin *adminRepository) SelectNip(nip string) (model.Admins, error) {
 }
 
 func (admin *adminRepository) InsertList(data request.ListCollege) error {
-	dataAdmin := model.Admins{}
 
-	tx := admin.db.Preload("Advisor").Where("nip = ?", data.Advisor).Take(&dataAdmin)
-	if tx.Error != nil {
-		return tx.Error
+    dataAdmin := model.Admins{}
+    err := admin.db.Where("nip = ?", data.Advisor).First(&dataAdmin).Error
+    if err != nil {
+        return err
+    }
+
+    dataUsers := []user.Users{}
+    err = admin.db.Where("nim IN (?)", data.Colleges).Find(&dataUsers).Error
+    if err != nil {
+        return err
+    }
+
+    dataManys := make([]model.AdvisorCollege, 0, len(dataUsers))
+    for _, user := range dataUsers {
+        dataManys = append(dataManys, model.AdvisorCollege{
+            UsersId: user.Id,
+            AdminsId: dataAdmin.Id,
+        })
+    }
+
+    tx := admin.db.Create(&dataManys)
+
+	if errors.As(tx.Error, &pg) {
+		return errors.New("error : data already exists")
 	}
 
-	for _, usersNim := range data.Colleges {
-		dataUsers:= user.Users{}
+    if tx.Error != nil {
+        return tx.Error
+    }
 
-		tx := admin.db.Where("nim = ?",usersNim).Take(&dataUsers)
-		if tx.Error != nil {
-			return tx.Error
-		}
-
-		tx = admin.db.Exec("INSERT INTO advisor_colleges (admin_id, users_id) VALUES (?, ?)", dataAdmin.Id, dataUsers.Id)
-
-		if errors.As(tx.Error, &pg) {
-			return errors.New("ERROR : data already exists")
-		}
-
-		if tx.Error != nil {
-			return tx.Error
-		}
-	}
-
-	return nil
+    return nil
 }
+
 
 func (admin *adminRepository) DeleteAdvisor(id string) error {
 	dataAdmin := model.Admins{}
-	
+
 	tx := admin.db.Where("id = ? ", id).Delete(&dataAdmin)
 	if tx.Error != nil {
 		return tx.Error
