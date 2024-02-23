@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type Admin struct {
+type Admins struct {
 	Id        string `gorm:"primaryKey"`
 	Nip       string
 	Role      string `gorm:"type:role_type;"`

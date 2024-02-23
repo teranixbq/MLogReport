@@ -6,6 +6,7 @@ import (
 	"mlogreport/feature/admin/model"
 	user "mlogreport/feature/user/model"
 	"github.com/jackc/pgx/v5/pgconn"
+
 	"gorm.io/gorm"
 )
 
@@ -15,7 +16,7 @@ type adminRepository struct {
 
 type AdminRepositoryInterface interface {
 	CreateAdvisor(data request.CreateAdvisor) error
-	SelectNip(nip string) (model.Admin, error)
+	SelectNip(nip string) (model.Admins, error)
 	InsertList(data request.ListCollege) error
 	DeleteAdvisor(id string) error
 }
@@ -41,50 +42,56 @@ func (admin *adminRepository) CreateAdvisor(data request.CreateAdvisor) error {
 	return nil
 }
 
-func (admin *adminRepository) SelectNip(nip string) (model.Admin, error) {
-	dataAdmin := model.Admin{}
+func (admin *adminRepository) SelectNip(nip string) (model.Admins, error) {
+	dataAdmin := model.Admins{}
 
 	tx := admin.db.Where("nip = ?", nip).Take(&dataAdmin)
 	if tx.Error != nil {
-		return model.Admin{}, tx.Error
+		return model.Admins{}, tx.Error
 	}
 
 	return dataAdmin, nil
 }
 
 func (admin *adminRepository) InsertList(data request.ListCollege) error {
-	dataAdmin := model.Admin{}
 
-	tx := admin.db.Preload("Advisor").Where("nip = ?", data.Advisor).Take(&dataAdmin)
-	if tx.Error != nil {
-		return tx.Error
+    dataAdmin := model.Admins{}
+    err := admin.db.Where("nip = ?", data.Advisor).First(&dataAdmin).Error
+    if err != nil {
+        return err
+    }
+
+    dataUsers := []user.Users{}
+    err = admin.db.Where("nim IN (?)", data.Colleges).Find(&dataUsers).Error
+    if err != nil {
+        return err
+    }
+
+    dataManys := make([]model.AdvisorCollege, 0, len(dataUsers))
+    for _, user := range dataUsers {
+        dataManys = append(dataManys, model.AdvisorCollege{
+            UsersId: user.Id,
+            AdminsId: dataAdmin.Id,
+        })
+    }
+
+    tx := admin.db.Create(&dataManys)
+
+	if errors.As(tx.Error, &pg) {
+		return errors.New("error : data already exists")
 	}
 
-	for _, usersNim := range data.Colleges {
-		dataUsers:= user.Users{}
+    if tx.Error != nil {
+        return tx.Error
+    }
 
-		tx := admin.db.Where("nim = ?",usersNim).Take(&dataUsers)
-		if tx.Error != nil {
-			return tx.Error
-		}
-
-		tx = admin.db.Exec("INSERT INTO advisor_colleges (admin_id, users_id) VALUES (?, ?)", dataAdmin.Id, dataUsers.Id)
-
-		if errors.As(tx.Error, &pg) {
-			return errors.New("ERROR : data already exists")
-		}
-
-		if tx.Error != nil {
-			return tx.Error
-		}
-	}
-
-	return nil
+    return nil
 }
 
+
 func (admin *adminRepository) DeleteAdvisor(id string) error {
-	dataAdmin := model.Admin{}
-	
+	dataAdmin := model.Admins{}
+
 	tx := admin.db.Where("id = ? ", id).Delete(&dataAdmin)
 	if tx.Error != nil {
 		return tx.Error

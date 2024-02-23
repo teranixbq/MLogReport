@@ -93,7 +93,7 @@ func (report *reportRepository) FindReport(IdUser string) (response.ResponseRepo
 
 func (report *reportRepository) FindAllReport(IdUser string) ([]response.ResponseReport, error) {
 	dataReport := []response.ResponseReport{}
-	dataAdmin := admin.Admin{}
+	dataAdmin := admin.Admins{}
 	dataUser := []user.Users{}
 
 	var unsubmitted int
