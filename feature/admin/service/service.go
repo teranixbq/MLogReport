@@ -18,6 +18,7 @@ type adminService struct {
 type AdminServiceInterface interface {
 	CreateAdvisor(data request.CreateAdvisor) error
 	Login(data request.AdminLogin) (response.ResponseLogin, error)
+	SelectAllAdvisor() ([]response.ResponseAllAdvisor, error)
 	InsertList(data request.ListCollege) error
 	DeleteAdvisor(id string) error
 }
@@ -77,6 +78,16 @@ func (admin *adminService) Login(data request.AdminLogin) (response.ResponseLogi
 	response := response.ModelToResponseLogin(dataAdmin.Name, dataAdmin.Role, token)
 	return response, nil
 }
+
+func (admin *adminService) SelectAllAdvisor() ([]response.ResponseAllAdvisor, error) {
+	dataAdvisor,err := admin.adminRepository.SelectAllAdvisor()
+	if err != nil {
+		return nil,err
+	}
+
+	return dataAdvisor,nil
+}
+
 
 func (admin *adminService) InsertList(data request.ListCollege) error {
 	err := admin.adminRepository.InsertList(data)
