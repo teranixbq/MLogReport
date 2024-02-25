@@ -71,6 +71,21 @@ func (admin *adminHandler) Login(c *gin.Context) {
 	c.JSON(200, helper.SuccessWithDataResponse("success login", response))
 }
 
+func (admin *adminHandler) GetAllAdvisor(c *gin.Context) {
+	result, err := admin.adminService.SelectAllAdvisor()
+	if err != nil {
+		if strings.Contains(err.Error(), constanta.ERROR) {
+			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
+			return
+		}
+
+		c.AbortWithStatusJSON(500, helper.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(200, helper.SuccessWithDataResponse("success get all advisor", result))
+}
+
 func (admin *adminHandler) CreateListColleges(c *gin.Context) {
 	input := request.ListCollege{}
 
