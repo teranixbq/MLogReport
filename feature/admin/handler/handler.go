@@ -72,7 +72,11 @@ func (admin *adminHandler) Login(c *gin.Context) {
 }
 
 func (admin *adminHandler) GetAllAdvisor(c *gin.Context) {
-	result, err := admin.adminService.SelectAllAdvisor()
+	data := c.MustGet("pagination").(gin.H)
+	page := data["page"].(int)
+	limit := data["limit"].(int)
+
+	result, metaInfo, err := admin.adminService.SelectAllAdvisor(page, limit)
 	if err != nil {
 		if strings.Contains(err.Error(), constanta.ERROR) {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
@@ -83,7 +87,7 @@ func (admin *adminHandler) GetAllAdvisor(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, helper.SuccessWithDataResponse("success get all advisor", result))
+	c.JSON(200, helper.SuccessWithPageResponse("success get all advisor", metaInfo, result))
 }
 
 func (admin *adminHandler) CreateListColleges(c *gin.Context) {

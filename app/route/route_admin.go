@@ -22,7 +22,7 @@ func RouteAdmin(c *gin.RouterGroup, db *gorm.DB) {
 	{
 		admin.POST("", adminHandler.CreateAdvisor)
 		admin.POST("/add",adminHandler.CreateListColleges)
-		admin.GET("advisor",adminHandler.GetAllAdvisor)
+		admin.GET("advisor",middleware.Pagination(),adminHandler.GetAllAdvisor)
 		admin.DELETE("/:id",adminHandler.DeleteAdvisor)
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"mlogreport/feature/admin/model"
 	user "mlogreport/feature/user/model"
 	"mlogreport/utils/enum"
+	"mlogreport/utils/meta"
 
 	"github.com/jackc/pgx/v5/pgconn"
 
@@ -20,7 +21,7 @@ type adminRepository struct {
 type AdminRepositoryInterface interface {
 	CreateAdvisor(data request.CreateAdvisor) error
 	SelectNip(nip string) (model.Admins, error)
-	SelectAllAdvisor() ([]response.ResponseAllAdvisor, error)
+	SelectAllAdvisor(page, limit int) ([]response.ResponseAllAdvisor, meta.Meta, error)
 	InsertList(data request.ListCollege) error
 	DeleteAdvisor(id string) error
 }
@@ -57,24 +58,34 @@ func (admin *adminRepository) SelectNip(nip string) (model.Admins, error) {
 	return dataAdmin, nil
 }
 
-func (admin *adminRepository) SelectAllAdvisor(page,limit int) ([]response.ResponseAllAdvisor, error) {
+func (admin *adminRepository) SelectAllAdvisor(page, limit int) ([]response.ResponseAllAdvisor, meta.Meta, error) {
 	dataAdvisor := []model.Admins{}
-	offset := (page -1)*limit
+	var totalData int64
+	offset := (page - 1) * limit
 
 	err := admin.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("role = ?", enum.RoleType[1]).Offset(offset).Order("name").Find(&dataAdvisor).Error; err != nil {
+		if err := tx.Model(&model.Admins{}).Where("role = ?", enum.RoleType[1]).Count(&totalData).Error; err != nil {
 			return err
 		}
 
+		if err := tx.
+			Where("role = ?", enum.RoleType[1]).
+			Offset(offset).
+			Limit(limit).
+			Order("name ASC").
+			Find(&dataAdvisor).Error; err != nil {
+			return err
+		}
 		return nil
 	})
 
 	if err != nil {
-		return nil, err
+		return nil, meta.Meta{}, err
 	}
 
+	metaInfo := meta.MetaInfo(page, limit, int(totalData))
 	response := response.ListResponseAllAdvisor(dataAdvisor)
-	return response, nil
+	return response, metaInfo, nil
 }
 
 func (admin *adminRepository) InsertList(data request.ListCollege) error {

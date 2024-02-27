@@ -8,6 +8,7 @@ type ErrorResponseJson struct {
 type SuccessResponseJson struct {
 	Status  bool        `json:"status"`
 	Message string      `json:"message"`
+	Meta    interface{} `json:"meta,omitempty"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
@@ -29,6 +30,15 @@ func SuccessWithDataResponse(message string, data interface{}) SuccessResponseJs
 	return SuccessResponseJson{
 		Status:  true,
 		Message: message,
+		Data:    data,
+	}
+}
+
+func SuccessWithPageResponse(message string, meta, data interface{}) SuccessResponseJson {
+	return SuccessResponseJson{
+		Status:  true,
+		Message: message,
+		Meta:    meta,
 		Data:    data,
 	}
 }

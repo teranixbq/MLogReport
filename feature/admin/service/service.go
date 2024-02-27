@@ -2,12 +2,14 @@ package service
 
 import (
 	"errors"
+	"log"
 	"mlogreport/feature/admin/dto/request"
 	"mlogreport/feature/admin/dto/response"
 	"mlogreport/feature/admin/repository"
 	"mlogreport/utils/auth"
 	"mlogreport/utils/enum"
 	"mlogreport/utils/helper"
+	"mlogreport/utils/meta"
 	"mlogreport/utils/validation"
 )
 
@@ -18,7 +20,7 @@ type adminService struct {
 type AdminServiceInterface interface {
 	CreateAdvisor(data request.CreateAdvisor) error
 	Login(data request.AdminLogin) (response.ResponseLogin, error)
-	SelectAllAdvisor() ([]response.ResponseAllAdvisor, error)
+	SelectAllAdvisor(page, limit int) ([]response.ResponseAllAdvisor, meta.Meta, error)
 	InsertList(data request.ListCollege) error
 	DeleteAdvisor(id string) error
 }
@@ -79,15 +81,23 @@ func (admin *adminService) Login(data request.AdminLogin) (response.ResponseLogi
 	return response, nil
 }
 
-func (admin *adminService) SelectAllAdvisor() ([]response.ResponseAllAdvisor, error) {
-	dataAdvisor,err := admin.adminRepository.SelectAllAdvisor()
+func (admin *adminService) SelectAllAdvisor(page, limit int) ([]response.ResponseAllAdvisor, meta.Meta, error) {
+	log.Println("lasts",page,limit)
+	
+	page, limit, err := validation.CheckPagination(page, limit)
 	if err != nil {
-		return nil,err
+		return nil, meta.Meta{}, err
 	}
 
-	return dataAdvisor,nil
-}
+	log.Println("last",page,limit)
 
+	dataAdvisor, metaInfo, err := admin.adminRepository.SelectAllAdvisor(page, limit)
+	if err != nil {
+		return nil, meta.Meta{}, err
+	}
+
+	return dataAdvisor, metaInfo, nil
+}
 
 func (admin *adminService) InsertList(data request.ListCollege) error {
 	err := admin.adminRepository.InsertList(data)
