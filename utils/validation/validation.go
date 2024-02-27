@@ -3,6 +3,8 @@ package validation
 import (
 	"errors"
 	"reflect"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -104,4 +106,34 @@ func DateAsia() string {
 	timesAsia := TimeAsia()
 	timepath := time.Now().In(timesAsia).Format("2006-01-02")
 	return timepath
+}
+
+func CheckPagination(page, limit int) (int, int, error) {
+    numericRegex := regexp.MustCompile(`^\d+$`)
+
+    if page != 0 {
+        if !numericRegex.MatchString(strconv.Itoa(page)) {
+            return 0, 0, errors.New("error: page must be a numeric value")
+        }
+    }
+
+    if limit != 0 {
+        if !numericRegex.MatchString(strconv.Itoa(limit)) {
+            return 0, 0, errors.New("error: limit must be a numeric value")
+        }
+    }
+
+    if limit != 0 && limit != 5 && limit != 10 {
+        return 0, 0, errors.New("error: limit must be either 5 or 10")
+    }
+
+    if page == 0 {
+        page = 1
+    }
+
+    if limit == 0 {
+        limit = 10
+    }
+
+    return page, limit, nil
 }
