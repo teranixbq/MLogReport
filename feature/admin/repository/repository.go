@@ -57,12 +57,20 @@ func (admin *adminRepository) SelectNip(nip string) (model.Admins, error) {
 	return dataAdmin, nil
 }
 
-func (admin *adminRepository) SelectAllAdvisor() ([]response.ResponseAllAdvisor, error) {
+func (admin *adminRepository) SelectAllAdvisor(page,limit int) ([]response.ResponseAllAdvisor, error) {
 	dataAdvisor := []model.Admins{}
+	offset := (page -1)*limit
 
-	tx := admin.db.Where("role = ?",enum.RoleType[1]).Find(&dataAdvisor)
-	if tx.Error != nil {
-		return nil, tx.Error
+	err := admin.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("role = ?", enum.RoleType[1]).Offset(offset).Order("name").Find(&dataAdvisor).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
 	}
 
 	response := response.ListResponseAllAdvisor(dataAdvisor)
