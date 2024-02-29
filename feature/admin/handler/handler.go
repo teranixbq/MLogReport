@@ -1,11 +1,12 @@
 package handler
 
 import (
+	"strings"
+
 	"mlogreport/feature/admin/dto/request"
 	"mlogreport/feature/admin/service"
 	"mlogreport/utils/constanta"
 	"mlogreport/utils/helper"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -90,6 +91,28 @@ func (admin *adminHandler) GetAllAdvisor(c *gin.Context) {
 	c.JSON(200, helper.SuccessWithPageResponse("success get all advisor", metaInfo, result))
 }
 
+func (admin *adminHandler) GetAdvisor(c *gin.Context) {
+	id := c.Param("id")
+
+	result, err := admin.adminService.SelectAdvisor(id)
+	if err != nil {
+		if strings.Contains(err.Error(), constanta.ERROR) {
+			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
+			return
+		}
+
+		if strings.Contains(err.Error(), constanta.NOT_FOUND) {
+			c.AbortWithStatusJSON(404, helper.ErrorResponse(err.Error()))
+			return
+		}
+
+		c.AbortWithStatusJSON(500, helper.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(200, helper.SuccessWithDataResponse("succes get advisor", result))
+}
+
 func (admin *adminHandler) CreateListColleges(c *gin.Context) {
 	input := request.ListCollege{}
 
@@ -103,6 +126,11 @@ func (admin *adminHandler) CreateListColleges(c *gin.Context) {
 	if err != nil {
 		if strings.Contains(err.Error(), constanta.ERROR) {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
+			return
+		}
+
+		if strings.Contains(err.Error(), constanta.NOT_FOUND) {
+			c.AbortWithStatusJSON(404, helper.ErrorResponse(err.Error()))
 			return
 		}
 

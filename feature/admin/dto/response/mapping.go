@@ -1,6 +1,9 @@
 package response
 
-import "mlogreport/feature/admin/model"
+import (
+	"mlogreport/feature/admin/model"
+	user "mlogreport/feature/user/dto/response"
+)
 
 func ModelToResponseLogin(name, roles, token string) ResponseLogin {
 	return ResponseLogin{
@@ -26,4 +29,13 @@ func ListResponseAllAdvisor(data []model.Admins) []ResponseAllAdvisor {
 	}
 
 	return list
+}
+
+func ModelToResponseAdvisor(data model.Admins) ResponseAdvisor {
+	return ResponseAdvisor{
+		Id:       data.Id,
+		Nip:      data.Nip,
+		Name:     data.Name,
+		Colleges: user.ListModelToProfileUser(data.Advisor),
+	}
 }
