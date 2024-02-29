@@ -2,14 +2,13 @@ package repository
 
 import (
 	"errors"
+
 	"mlogreport/feature/admin/dto/request"
 	"mlogreport/feature/admin/dto/response"
 	"mlogreport/feature/admin/model"
 	user "mlogreport/feature/user/model"
 	"mlogreport/utils/enum"
 	"mlogreport/utils/meta"
-
-	"github.com/jackc/pgx/v5/pgconn"
 
 	"gorm.io/gorm"
 )
@@ -22,6 +21,7 @@ type AdminRepositoryInterface interface {
 	CreateAdvisor(data request.CreateAdvisor) error
 	SelectNip(nip string) (model.Admins, error)
 	SelectAllAdvisor(page, limit int) ([]response.ResponseAllAdvisor, meta.Meta, error)
+	SelectAdvisor(id string) (response.ResponseAdvisor, error)
 	InsertList(data request.ListCollege) error
 	DeleteAdvisor(id string) error
 }
@@ -31,10 +31,6 @@ func NewPromptRepository(db *gorm.DB) AdminRepositoryInterface {
 		db: db,
 	}
 }
-
-var (
-	pg *pgconn.PgError
-)
 
 func (admin *adminRepository) CreateAdvisor(data request.CreateAdvisor) error {
 	input := request.CreateAdvisorToModel(data)
@@ -63,24 +59,20 @@ func (admin *adminRepository) SelectAllAdvisor(page, limit int) ([]response.Resp
 	var totalData int64
 	offset := (page - 1) * limit
 
-	err := admin.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Model(&model.Admins{}).Where("role = ?", enum.RoleType[1]).Count(&totalData).Error; err != nil {
-			return err
-		}
+	tx := admin.db.Model(&model.Admins{}).Where("role = ?", enum.RoleType[1]).Count(&totalData)
+	if tx.Error != nil {
+		return nil, meta.Meta{}, tx.Error
+	}
 
-		if err := tx.
-			Where("role = ?", enum.RoleType[1]).
-			Offset(offset).
-			Limit(limit).
-			Order("name ASC").
-			Find(&dataAdvisor).Error; err != nil {
-			return err
-		}
-		return nil
-	})
+	tx = admin.db.
+		Where("role = ?", enum.RoleType[1]).
+		Offset(offset).
+		Limit(limit).
+		Order("name ASC").
+		Find(&dataAdvisor)
 
-	if err != nil {
-		return nil, meta.Meta{}, err
+	if tx.Error != nil {
+		return nil, meta.Meta{}, tx.Error
 	}
 
 	metaInfo := meta.MetaInfo(page, limit, int(totalData))
@@ -88,18 +80,41 @@ func (admin *adminRepository) SelectAllAdvisor(page, limit int) ([]response.Resp
 	return response, metaInfo, nil
 }
 
-func (admin *adminRepository) InsertList(data request.ListCollege) error {
-
+func (admin *adminRepository) SelectAdvisor(id string) (response.ResponseAdvisor, error) {
 	dataAdmin := model.Admins{}
-	err := admin.db.Where("nip = ?", data.Advisor).First(&dataAdmin).Error
-	if err != nil {
-		return err
+
+	if err := admin.db.Preload("Advisor").First(&dataAdmin, "id = ?", id).Error; err != nil {
+		return response.ResponseAdvisor{}, err
+	}
+
+	response := response.ModelToResponseAdvisor(dataAdmin)
+	return response, nil
+}
+
+func (admin *adminRepository) InsertList(data request.ListCollege) error {
+	dataAdmin := model.Admins{}
+
+	err := admin.db.Where("nip = ?", data.Advisor).First(&dataAdmin)
+	if err.Error != nil {
+		return err.Error
 	}
 
 	dataUsers := []user.Users{}
-	err = admin.db.Where("nim IN (?)", data.Colleges).Find(&dataUsers).Error
-	if err != nil {
-		return err
+	for _, college := range data.Colleges {
+		var user user.Users
+		var advisorCollege model.AdvisorCollege
+
+		err := admin.db.Where("nim = ?", college).First(&user)
+		if err.Error != nil {
+			return err.Error
+		}
+
+		err = admin.db.Where("users_id = ? ", user.Id).First(&advisorCollege)
+		if err.RowsAffected != 0 {
+			return errors.New("error : data already exists")
+		}
+
+		dataUsers = append(dataUsers, user)
 	}
 
 	dataManys := make([]model.AdvisorCollege, 0, len(dataUsers))
@@ -110,14 +125,9 @@ func (admin *adminRepository) InsertList(data request.ListCollege) error {
 		})
 	}
 
-	tx := admin.db.Create(&dataManys)
-
-	if errors.As(tx.Error, &pg) {
-		return errors.New("error : data already exists")
-	}
-
-	if tx.Error != nil {
-		return tx.Error
+	err = admin.db.Create(&dataManys)
+	if err.Error != nil {
+		return err.Error
 	}
 
 	return nil

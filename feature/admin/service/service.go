@@ -2,7 +2,7 @@ package service
 
 import (
 	"errors"
-	"log"
+
 	"mlogreport/feature/admin/dto/request"
 	"mlogreport/feature/admin/dto/response"
 	"mlogreport/feature/admin/repository"
@@ -21,6 +21,7 @@ type AdminServiceInterface interface {
 	CreateAdvisor(data request.CreateAdvisor) error
 	Login(data request.AdminLogin) (response.ResponseLogin, error)
 	SelectAllAdvisor(page, limit int) ([]response.ResponseAllAdvisor, meta.Meta, error)
+	SelectAdvisor(id string) (response.ResponseAdvisor, error)
 	InsertList(data request.ListCollege) error
 	DeleteAdvisor(id string) error
 }
@@ -82,21 +83,31 @@ func (admin *adminService) Login(data request.AdminLogin) (response.ResponseLogi
 }
 
 func (admin *adminService) SelectAllAdvisor(page, limit int) ([]response.ResponseAllAdvisor, meta.Meta, error) {
-	log.Println("lasts",page,limit)
-	
 	page, limit, err := validation.CheckPagination(page, limit)
 	if err != nil {
 		return nil, meta.Meta{}, err
 	}
-
-	log.Println("last",page,limit)
 
 	dataAdvisor, metaInfo, err := admin.adminRepository.SelectAllAdvisor(page, limit)
 	if err != nil {
 		return nil, meta.Meta{}, err
 	}
 
+	if metaInfo.TotalPage != 0 {
+		if page > metaInfo.TotalPage {
+			return nil, meta.Meta{}, errors.New("error : page is not available")
+		}
+	}
+
 	return dataAdvisor, metaInfo, nil
+}
+
+func (admin *adminService) SelectAdvisor(id string) (response.ResponseAdvisor, error) {
+	dataAdmin, err := admin.adminRepository.SelectAdvisor(id)
+	if err != nil {
+		return response.ResponseAdvisor{}, err
+	}
+	return dataAdmin, nil
 }
 
 func (admin *adminService) InsertList(data request.ListCollege) error {

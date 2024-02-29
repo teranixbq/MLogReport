@@ -21,8 +21,9 @@ func RouteAdmin(c *gin.RouterGroup, db *gorm.DB) {
 	admin := c.Group("admin", auth.JWTMiddleware(), middleware.IsRole("admin"))
 	{
 		admin.POST("", adminHandler.CreateAdvisor)
-		admin.POST("/add",adminHandler.CreateListColleges)
-		admin.GET("advisor",middleware.Pagination(),adminHandler.GetAllAdvisor)
-		admin.DELETE("/:id",adminHandler.DeleteAdvisor)
+		admin.POST("/add", adminHandler.CreateListColleges)
+		admin.GET("advisor", middleware.Pagination(), adminHandler.GetAllAdvisor)
+		admin.GET("advisor/:id", adminHandler.GetAdvisor)
+		admin.DELETE("/:id", adminHandler.DeleteAdvisor)
 	}
 }

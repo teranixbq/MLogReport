@@ -18,3 +18,12 @@ func ModelToProfileUser(data model.Users) ProfileUser {
 		Program: data.Program,
 	}
 }
+
+func ListModelToProfileUser(data []model.Users) []ProfileUser {
+	list := []ProfileUser{}
+	for _, v := range data {
+		response := ModelToProfileUser(v)
+		list = append(list, response)
+	}
+	return list
+}
