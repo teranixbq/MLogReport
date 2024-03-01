@@ -2,9 +2,11 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 	"mlogreport/feature/user/dto/request"
 	"mlogreport/feature/user/dto/response"
 	"mlogreport/feature/user/model"
+	"mlogreport/utils/constanta"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"
@@ -39,11 +41,12 @@ func (user *userRepository) InsertUser(data request.RequestUser) error {
 	tx := user.db.Create(&input)
 
 	if errors.As(tx.Error, &pg) {
-		return errors.New("ERROR : data already exists")
+		err := fmt.Sprintf(constanta.EXISTS,input.Nim)
+		return errors.New(err)
 	}
 
 	if tx.Error != nil {
-		return nil
+		return tx.Error
 	}
 
 	return nil

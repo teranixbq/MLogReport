@@ -109,31 +109,31 @@ func DateAsia() string {
 }
 
 func CheckPagination(page, limit int) (int, int, error) {
-    numericRegex := regexp.MustCompile(`^\d+$`)
+	numericRegex := regexp.MustCompile(`^\d+$`)
 
-    if page != 0 {
-        if !numericRegex.MatchString(strconv.Itoa(page)) {
-            return 0, 0, errors.New("error: page must be a numeric value")
-        }
-    }
+	if page != 0 {
+		if !numericRegex.MatchString(strconv.Itoa(page)) {
+			return 0, 0, errors.New("error: page must be a numeric value")
+		}
+	}
 
-    if limit != 0 {
-        if !numericRegex.MatchString(strconv.Itoa(limit)) {
-            return 0, 0, errors.New("error: limit must be a numeric value")
-        }
-    }
+	if limit != 0 {
+		if !numericRegex.MatchString(strconv.Itoa(limit)) {
+			return 0, 0, errors.New("error: limit must be a numeric value")
+		}
+	}
 
-    if limit != 0 && limit != 5 && limit != 10 {
-        return 0, 0, errors.New("error: limit must be either 5 or 10")
-    }
+	if limit != 0 && limit != 5 && limit != 10 {
+		return 0, 0, errors.New("error: limit must be either 5 or 10")
+	}
 
-    if page == 0 {
-        page = 1
-    }
+	if page == 0 {
+		page = 1
+	}
 
-    if limit == 0 {
-        limit = 10
-    }
+	if limit == 0 {
+		limit = 10
+	}
 
-    return page, limit, nil
+	return page, limit, nil
 }

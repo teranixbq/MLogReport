@@ -11,7 +11,7 @@ import (
 
 type Users struct {
 	Id        string `gorm:"primaryKey"`
-	Nim       string
+	Nim       string `gorm:"unique;not null"`
 	Name      string
 	Password  string
 	Class     string

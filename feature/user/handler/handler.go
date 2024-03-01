@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"strings"
+
 	"mlogreport/feature/user/dto/request"
 	"mlogreport/feature/user/service"
+	"mlogreport/utils/constanta"
 	"mlogreport/utils/helper"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,7 +22,7 @@ func NewUserHandler(userService service.UserServiceInterface) *userHandler {
 func (user *userHandler) CreateUser(c *gin.Context) {
 	input := request.RequestUser{}
 
-	err := c.Bind(&input)
+	err := helper.BindJSON(c, &input)
 	if err != nil {
 		c.JSON(400, helper.ErrorResponse(err.Error()))
 		return
@@ -28,7 +30,7 @@ func (user *userHandler) CreateUser(c *gin.Context) {
 
 	err = user.userService.InsertUser(input)
 	if err != nil {
-		if strings.Contains(err.Error(), "error") {
+		if strings.Contains(err.Error(), constanta.ERROR) {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
 			return
 		}
@@ -42,7 +44,7 @@ func (user *userHandler) CreateUser(c *gin.Context) {
 
 func (user *userHandler) Login(c *gin.Context) {
 	input := request.RequestLogin{}
-	err := c.Bind(&input)
+	err := helper.BindJSON(c, &input)
 	if err != nil {
 		c.JSON(400, helper.ErrorResponse(err.Error()))
 		return
@@ -50,8 +52,13 @@ func (user *userHandler) Login(c *gin.Context) {
 
 	result, err := user.userService.Login(input)
 	if err != nil {
-		if strings.Contains(err.Error(), "error") {
+		if strings.Contains(err.Error(), constanta.ERROR) {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
+			return
+		}
+
+		if strings.Contains(err.Error(), constanta.NOT_FOUND) {
+			c.AbortWithStatusJSON(404, helper.ErrorResponse(err.Error()))
 			return
 		}
 
@@ -68,8 +75,13 @@ func (user *userHandler) GetProfile(c *gin.Context) {
 
 	result, err := user.userService.SelectUserById(nim)
 	if err != nil {
-		if strings.Contains(err.Error(), "error") {
+		if strings.Contains(err.Error(), constanta.ERROR) {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
+			return
+		}
+
+		if strings.Contains(err.Error(), constanta.NOT_FOUND) {
+			c.AbortWithStatusJSON(404, helper.ErrorResponse(err.Error()))
 			return
 		}
 
@@ -85,16 +97,21 @@ func (user *userHandler) UpdateProfile(c *gin.Context) {
 	nim, _ := id.(string)
 	input := request.RequestUpdateProfile{}
 
-	err := c.Bind(&input)
+	err := helper.BindJSON(c, &input)
 	if err != nil {
-
 		c.JSON(400, helper.ErrorResponse(err.Error()))
+		return
 	}
 
 	err = user.userService.UpdateProfile(nim, input)
 	if err != nil {
-		if strings.Contains(err.Error(), "error") {
+		if strings.Contains(err.Error(), constanta.ERROR) {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
+			return
+		}
+
+		if strings.Contains(err.Error(), constanta.NOT_FOUND) {
+			c.AbortWithStatusJSON(404, helper.ErrorResponse(err.Error()))
 			return
 		}
 
