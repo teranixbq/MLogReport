@@ -21,6 +21,10 @@ func CheckEmpty(data ...interface{}) error {
 			if d == "" {
 				return errors.New("error : data cannot be empty")
 			}
+		case reflect.Slice:
+			if v.Len() == 0 {
+				return errors.New("error: slice cannot be empty")
+			}
 		}
 	}
 	return nil
