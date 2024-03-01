@@ -2,11 +2,13 @@ package service
 
 import (
 	"errors"
+	"fmt"
 
 	"mlogreport/feature/admin/dto/request"
 	"mlogreport/feature/admin/dto/response"
 	"mlogreport/feature/admin/repository"
 	"mlogreport/utils/auth"
+	"mlogreport/utils/constanta"
 	"mlogreport/utils/enum"
 	"mlogreport/utils/helper"
 	"mlogreport/utils/meta"
@@ -45,7 +47,8 @@ func (admin *adminService) CreateAdvisor(data request.CreateAdvisor) error {
 
 	dataUser, _ := admin.adminRepository.SelectNip(data.Nip)
 	if dataUser.Nip != "" {
-		return errors.New("error : data alreadey exist")
+		dataErr := fmt.Sprintf(constanta.EXISTS, dataUser.Nip)
+		return errors.New(dataErr)
 	}
 
 	password, errHash := helper.HashPass(data.Password)
@@ -70,7 +73,7 @@ func (admin *adminService) Login(data request.AdminLogin) (response.ResponseLogi
 	}
 
 	if !helper.CompareHash(dataAdmin.Password, data.Password) {
-		return response.ResponseLogin{}, errors.New("ERROR : password is wrong")
+		return response.ResponseLogin{}, errors.New(constanta.WRONG_PASS)
 	}
 
 	token, err := auth.CreateToken(dataAdmin.Id, dataAdmin.Role)
@@ -120,7 +123,16 @@ func (admin *adminService) InsertList(data request.ListCollege) error {
 }
 
 func (admin *adminService) DeleteAdvisor(id string) error {
-	err := admin.adminRepository.DeleteAdvisor(id)
+	dataAdvisor, err := admin.adminRepository.SelectAdvisor(id)
+	if err != nil {
+		return err
+	}
+	
+	if len(dataAdvisor.Colleges) != 0 {
+		return errors.New("error: Cannot delete advisors currently connected to the college")
+	}
+
+	err = admin.adminRepository.DeleteAdvisor(id)
 	if err != nil {
 		return err
 	}
