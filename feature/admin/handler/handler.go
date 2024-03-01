@@ -151,6 +151,11 @@ func (admin *adminHandler) DeleteAdvisor(c *gin.Context) {
 			return
 		}
 
+		if strings.Contains(err.Error(), constanta.NOT_FOUND) {
+			c.AbortWithStatusJSON(404, helper.ErrorResponse(err.Error()))
+			return
+		}
+
 		c.AbortWithStatusJSON(500, helper.ErrorResponse(err.Error()))
 		return
 	}
