@@ -24,7 +24,7 @@ func NewAdminHandler(adminService service.AdminServiceInterface) *adminHandler {
 func (admin *adminHandler) CreateAdvisor(c *gin.Context) {
 	input := request.CreateAdvisor{}
 
-	err := c.Bind(&input)
+	err := helper.BindJSON(c, &input)
 	if err != nil {
 		c.JSON(400, helper.ErrorResponse(err.Error()))
 		return
@@ -47,7 +47,7 @@ func (admin *adminHandler) CreateAdvisor(c *gin.Context) {
 func (admin *adminHandler) Login(c *gin.Context) {
 	input := request.AdminLogin{}
 
-	err := c.Bind(&input)
+	err := helper.BindJSON(c, &input)
 	if err != nil {
 		c.JSON(400, helper.ErrorResponse(err.Error()))
 		return
@@ -116,7 +116,7 @@ func (admin *adminHandler) GetAdvisor(c *gin.Context) {
 func (admin *adminHandler) CreateListColleges(c *gin.Context) {
 	input := request.ListCollege{}
 
-	err := c.Bind(&input)
+	err := helper.BindJSON(c, &input)
 	if err != nil {
 		c.JSON(400, helper.ErrorResponse(err.Error()))
 		return

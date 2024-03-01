@@ -2,11 +2,13 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 
 	"mlogreport/feature/admin/dto/request"
 	"mlogreport/feature/admin/dto/response"
 	"mlogreport/feature/admin/model"
 	user "mlogreport/feature/user/model"
+	"mlogreport/utils/constanta"
 	"mlogreport/utils/enum"
 	"mlogreport/utils/meta"
 
@@ -111,7 +113,8 @@ func (admin *adminRepository) InsertList(data request.ListCollege) error {
 
 		err = admin.db.Where("users_id = ? ", user.Id).First(&advisorCollege)
 		if err.RowsAffected != 0 {
-			return errors.New("error : data already exists")
+			err := fmt.Sprintf(constanta.EXISTS,user.Nim)
+			return errors.New(err)
 		}
 
 		dataUsers = append(dataUsers, user)

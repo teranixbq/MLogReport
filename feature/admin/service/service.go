@@ -35,6 +35,11 @@ func NewAdminService(adminRepository repository.AdminRepositoryInterface) AdminS
 }
 
 func (admin *adminService) CreateAdvisor(data request.CreateAdvisor) error {
+	errEmpty := validation.CheckEmpty(data.Nip, data.Name, data.Password, data.Role)
+	if errEmpty != nil {
+		return errEmpty
+	}
+
 	errLength := validation.CheckLength(data.Password)
 	if errLength != nil {
 		return errLength
@@ -67,6 +72,11 @@ func (admin *adminService) CreateAdvisor(data request.CreateAdvisor) error {
 }
 
 func (admin *adminService) Login(data request.AdminLogin) (response.ResponseLogin, error) {
+	errEmpty := validation.CheckEmpty(data.Nip, data.Password)
+	if errEmpty != nil {
+		return response.ResponseLogin{}, errEmpty
+	}
+
 	dataAdmin, err := admin.adminRepository.SelectNip(data.Nip)
 	if err != nil {
 		return response.ResponseLogin{}, err
@@ -114,6 +124,10 @@ func (admin *adminService) SelectAdvisor(id string) (response.ResponseAdvisor, e
 }
 
 func (admin *adminService) InsertList(data request.ListCollege) error {
+	errEmpty := validation.CheckEmpty(data.Advisor,data.Colleges)
+	if errEmpty != nil {
+		return errEmpty
+	}
 	err := admin.adminRepository.InsertList(data)
 	if err != nil {
 		return err
@@ -127,7 +141,7 @@ func (admin *adminService) DeleteAdvisor(id string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	if len(dataAdvisor.Colleges) != 0 {
 		return errors.New("error: Cannot delete advisors currently connected to the college")
 	}
