@@ -31,11 +31,6 @@ func JWTMiddleware() gin.HandlerFunc {
 		})
 
 		c.Next()
-
-		// if tokenString[0:7] != "Bearer " {
-		// 	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		// 	return
-		// }
 	}
 }
 

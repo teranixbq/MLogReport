@@ -25,7 +25,7 @@ func NewStorage(sb *supabase.Client) StorageInterface {
 }
 
 func InitStorage(cfg *config.Config) *supabase.Client {
-	storageClient := supabase.NewClient(cfg.STORAGE_URL, cfg.API_STORAGE, nil)
+	storageClient := supabase.NewClient(constanta.URL_STORAGE, cfg.API_STORAGE, nil)
 	return storageClient
 }
 
@@ -37,7 +37,6 @@ var (
 )
 
 func (sc *storageConfig) Upload(image *multipart.FileHeader) (string, error) {
-
 	file, err := image.Open()
 	if err != nil {
 		return "", err
@@ -51,6 +50,6 @@ func (sc *storageConfig) Upload(image *multipart.FileHeader) (string, error) {
 	if err != nil {
 		return "", errors.New(err.Error())
 	}
-	url := constanta.URL_STORAGE+result.Key
+	url := constanta.URL + result.Key
 	return url, nil
 }

@@ -13,3 +13,9 @@ down: migratedb
 
 run:
 	echo "alias run='go run main.go'" | tee -a ~/.bashrc
+
+build:
+	GOOS=linux GOARCH=arm64 go build -o bootstrap main.go
+
+zip: build
+	zip bootstrap.zip bootstrap
