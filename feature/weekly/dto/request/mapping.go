@@ -8,3 +8,10 @@ func RequestWeeklyToModel(data RequestWeekly) model.Weekly {
 		Description: data.Description,
 	}
 }
+
+func RequestPeriodeToModel(data RequestPeriode) model.Periode {
+	return model.Periode{
+		Start: data.Start,
+		End:   data.End,
+	}
+}

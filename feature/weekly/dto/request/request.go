@@ -6,5 +6,10 @@ type RequestWeekly struct {
 }
 
 type RequestStatus struct {
-	Status     string `json:"status"`
+	Status string `json:"status"`
+}
+
+type RequestPeriode struct {
+	Start string `json:"start"`
+	End   string `json:"end"`
 }

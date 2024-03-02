@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"mlogreport/utils/constanta"
+
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 )
@@ -87,6 +89,55 @@ func LimitDescription(data string, limit int) error {
 	descLimit := strings.Count(clean, "")
 	if descLimit > limit {
 		return errors.New("error : karakter input melebihi batas")
+	}
+
+	return nil
+}
+
+func CheckTime(startDate, endDate string, beforeTime bool) error {
+	layout := "2006-01-02"
+	timesAsia := TimeAsia()
+	currentTime := time.Now().In(timesAsia)
+
+	start, err := time.Parse(layout, startDate)
+	if err != nil {
+		return errors.New(constanta.INVALID_DATE)
+	}
+
+	if beforeTime {
+		if start.Before(currentTime) {
+			return errors.New(constanta.DATE_START)
+		}
+	}
+
+	end, err := time.Parse(layout, endDate)
+	if err != nil {
+		return errors.New(constanta.INVALID_DATE)
+	}
+
+	if end.Before(start) {
+		return errors.New(constanta.DATE_END)
+	}
+
+	if end.Equal(start) {
+		return errors.New(constanta.DATE_END_EQ)
+	}
+
+	return nil
+}
+
+func CheckTimeEnd(endDate string) error {
+	layout := "2006-01-02"
+	timesAsia := TimeAsia()
+	currentTime := time.Now().In(timesAsia).Truncate(24 * time.Hour)
+
+	end, err := time.Parse(layout, endDate)
+	if err != nil {
+		return errors.New(constanta.INVALID_DATE)
+	}
+
+	if end.After(currentTime){
+		return errors.New(constanta.TIME_EXISTS)
 	}
 
 	return nil
@@ -170,16 +221,16 @@ func EnvCheck(config interface{}, fileENV ...string) {
 		kind := fieldValue.Kind()
 
 		switch kind {
-			case reflect.String :
-				fieldValue.SetString(envValue)
-			case reflect.Int :
-				v, err := strconv.Atoi(envValue)
-				if err != nil {
-					logrus.Fatalf("Config: invalid %s value, %s", envKey, err.Error())
-				}
-				fieldValue.SetInt(int64(v))
-			default:
-				logrus.Fatalf("Config: unsupported field type %s for %s", fieldValue.Kind(), envKey)
+		case reflect.String:
+			fieldValue.SetString(envValue)
+		case reflect.Int:
+			v, err := strconv.Atoi(envValue)
+			if err != nil {
+				logrus.Fatalf("Config: invalid %s value, %s", envKey, err.Error())
+			}
+			fieldValue.SetInt(int64(v))
+		default:
+			logrus.Fatalf("Config: unsupported field type %s for %s", fieldValue.Kind(), envKey)
 		}
 	}
 }

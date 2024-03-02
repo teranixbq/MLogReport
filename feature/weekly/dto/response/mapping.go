@@ -36,3 +36,20 @@ func ListModelToResponseWeekly(data []model.Weekly) []ResponseWeekly {
 	}
 	return listweekly
 }
+
+func ModelToResponsePeriode(data model.Periode) ResponsePeriode {
+	return ResponsePeriode{
+		Id:        data.Id,
+		Start:     data.Start,
+		End:       data.End,
+	}
+}
+
+func ListModelToResponsePeriode(data []model.Periode) []ResponsePeriode{
+	list :=[]ResponsePeriode{}
+	for _,v := range data{
+		response := ModelToResponsePeriode(v)
+		list = append(list, response)
+	}
+	return list
+}

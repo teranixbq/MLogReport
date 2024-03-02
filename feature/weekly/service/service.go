@@ -2,6 +2,8 @@ package service
 
 import (
 	"errors"
+	"time"
+
 	user "mlogreport/feature/user/repository"
 	"mlogreport/feature/weekly/dto/request"
 	"mlogreport/feature/weekly/dto/response"
@@ -9,7 +11,6 @@ import (
 	"mlogreport/utils/constanta"
 	"mlogreport/utils/enum"
 	"mlogreport/utils/validation"
-	"time"
 )
 
 type weeklyService struct {
@@ -23,6 +24,9 @@ type WeeklyServiceInterface interface {
 	SelectAllWeeklyAdvisor(nip, nim string) (response.ResponseWeeklyDetail, error)
 	UpdateWeekly(id string, data request.RequestWeekly) error
 	UpdateStatus(idUser, id string, status string) error
+	InsertPeriode(data request.RequestPeriode) error
+	SelectAllPeriode() ([]response.ResponsePeriode, error)
+	UpdatePeriode(id string, data request.RequestPeriode) error
 }
 
 func NewWeeklyService(weeklyRepository repository.WeeklyRepositoryInterface, userRepository user.UserRepositoryInterface) WeeklyServiceInterface {
@@ -32,8 +36,77 @@ func NewWeeklyService(weeklyRepository repository.WeeklyRepositoryInterface, use
 	}
 }
 
-func (weekly *weeklyService) Insert(nim string, data request.RequestWeekly) error {
+func (weekly *weeklyService) InsertPeriode(data request.RequestPeriode) error {
+	errEmpty := validation.CheckEmpty(data)
+	if errEmpty != nil {
+		return errEmpty
+	}
 
+	errTime := validation.CheckTime(data.Start, data.End, true)
+	if errTime != nil {
+		return errTime
+	}
+
+	dataPeriode, _ := weekly.weeklyRepository.SelectPeriode("")
+
+	if dataPeriode.End != "" {
+		errTimeExists := validation.CheckTimeEnd(dataPeriode.End)
+		if errTimeExists != nil {
+			return errTimeExists
+		}
+	}
+
+	err := weekly.weeklyRepository.InsertPeriode(data)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (weekly *weeklyService) SelectAllPeriode() ([]response.ResponsePeriode, error) {
+	dataPeriode, err := weekly.weeklyRepository.SelectAllPeriode()
+	if err != nil {
+		return nil, err
+	}
+
+	return dataPeriode, nil
+}
+
+func (weekly *weeklyService) UpdatePeriode(id string, data request.RequestPeriode) error {
+	errEmpty := validation.CheckEmpty(data)
+	if errEmpty != nil {
+		return errEmpty
+	}
+
+	errTime := validation.CheckTime(data.Start, data.End, false)
+	if errTime != nil {
+		return errTime
+	}
+
+	dataPeriode, _ := weekly.weeklyRepository.SelectPeriode("")
+	_, err := weekly.weeklyRepository.SelectPeriode(id)
+	if err != nil {
+		return err
+	}
+
+	if dataPeriode.Id == "" {
+		return errors.New("error : there is no period data yet")
+	}
+
+	if dataPeriode.Id != id {
+		return errors.New("error : cannot edit old periods")
+	}
+
+	err = weekly.weeklyRepository.UpdatePeriode(id, data)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (weekly *weeklyService) Insert(nim string, data request.RequestWeekly) error {
 	timeAsia, errTime := time.LoadLocation("Asia/Bangkok")
 	if errTime != nil {
 		return errTime
@@ -76,7 +149,6 @@ func (weekly *weeklyService) SelectAllWeeklyAdvisor(nip, nim string) (response.R
 }
 
 func (weekly *weeklyService) UpdateWeekly(id string, data request.RequestWeekly) error {
-
 	errLimit := validation.LimitDescription(data.Description, 5000)
 	if errLimit != nil {
 		return errLimit
@@ -91,7 +163,6 @@ func (weekly *weeklyService) UpdateWeekly(id string, data request.RequestWeekly)
 }
 
 func (weekly *weeklyService) UpdateStatus(idUser, id string, status string) error {
-
 	errEmpty := validation.CheckEmpty(status)
 	if errEmpty != nil {
 		return errEmpty

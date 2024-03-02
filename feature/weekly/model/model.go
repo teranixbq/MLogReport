@@ -11,6 +11,17 @@ type Weekly struct {
 	UpdatedAt   time.Time
 }
 
+type Periode struct {
+	Id        string
+	Start     string
+	End       string
+	CreatedAt time.Time
+}
+
+func (Periode) TableName() string {
+	return "periode"
+}
+
 func (Weekly) TableName() string {
 	return "weekly"
 }
