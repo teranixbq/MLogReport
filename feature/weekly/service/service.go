@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"time"
 
 	user "mlogreport/feature/user/repository"
 	"mlogreport/feature/weekly/dto/request"
@@ -106,15 +105,20 @@ func (weekly *weeklyService) UpdatePeriode(id string, data request.RequestPeriod
 	return nil
 }
 
-func (weekly *weeklyService) Insert(nim string, data request.RequestWeekly) error {
-	timeAsia, errTime := time.LoadLocation("Asia/Bangkok")
-	if errTime != nil {
-		return errTime
+func (weekly *weeklyService) Insert(id string, data request.RequestWeekly) error {
+	dataUser, errData := weekly.userRepository.SelectUserById(id)
+	if errData != nil {
+		return errData
 	}
-	day := time.Now().In(timeAsia)
 
-	if day.After(time.Now().In(timeAsia)) {
-		return errors.New("error : waktu tidak sesuai")
+	errEmptyData := validation.CheckEmpty(dataUser.Program, dataUser.Mitra)
+	if errEmptyData != nil {
+		return errors.New("error : mitra and program data must be filled in first in the profile")
+	}
+
+	errEmpty := validation.CheckEmpty(data)
+	if errEmpty != nil {
+		return errEmpty
 	}
 
 	errLimit := validation.LimitDescription(data.Description, 5000)
@@ -122,7 +126,7 @@ func (weekly *weeklyService) Insert(nim string, data request.RequestWeekly) erro
 		return errLimit
 	}
 
-	err := weekly.weeklyRepository.Insert(nim, data)
+	err := weekly.weeklyRepository.Insert(id, data)
 	if err != nil {
 		return err
 	}

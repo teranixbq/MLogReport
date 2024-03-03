@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func IsRole(role_type string) gin.HandlerFunc {
+func IsRole(roleType string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, role, errExtract := auth.ExtractToken(c)
 		if errExtract != nil {
@@ -16,7 +16,7 @@ func IsRole(role_type string) gin.HandlerFunc {
 			return
 		}
 
-		if role != role_type {
+		if role != roleType {
 			c.AbortWithStatusJSON(401, helper.ErrorResponse("error : unauthorize"))
 		}
 

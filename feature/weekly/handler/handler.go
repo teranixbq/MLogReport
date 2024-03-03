@@ -22,17 +22,17 @@ func NewWeeklyHandler(weeklyService service.WeeklyServiceInterface) *weeklyhandl
 }
 
 func (weekly *weeklyhandler) CreateWeekly(c *gin.Context) {
-	id, _ := c.Get("id")
-	nim, _ := id.(string)
+	data, _ := c.Get("id")
+	id, _ := data.(string)
 
 	input := request.RequestWeekly{}
 
-	err := c.Bind(&input)
+	err := helper.BindJSON(c, &input)
 	if err != nil {
 		c.JSON(400, helper.ErrorResponse(err.Error()))
 	}
 
-	err = weekly.weeklyService.Insert(nim, input)
+	err = weekly.weeklyService.Insert(id, input)
 	if err != nil {
 		if strings.Contains(err.Error(), constanta.ERROR) {
 			c.AbortWithStatusJSON(400, helper.ErrorResponse(err.Error()))
@@ -86,7 +86,7 @@ func (weekly *weeklyhandler) UpdateWeekly(c *gin.Context) {
 	id := c.Param("id")
 	input := request.RequestWeekly{}
 
-	err := c.Bind(&input)
+	err := helper.BindJSON(c, &input)
 	if err != nil {
 		c.JSON(400, helper.ErrorResponse(err.Error()))
 	}
